@@ -1,0 +1,7 @@
+name: PrisonRanks
+version: "${version}"
+main: tech.mcprison.prison.ranks.plugins.RanksSpigot
+depend: [Prison]
+description: A ranks module for Prison.
+author: The MC-Prison Team
+website: https://mc-prison.tech
