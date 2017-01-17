@@ -15,6 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+buildscript {
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+
+}
+
 plugins {
     id 'org.spongepowered.plugin' version '0.6'
 }
@@ -26,6 +39,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
 
@@ -78,3 +92,15 @@ sponge {
         }
     }
 }
+
+shadowJar {
+    dependencies {
+    }
+    baseName 'PrisonRanks'
+    classifier ''
+    version = null
+}
+
+build.dependsOn(shadowJar)
+
+build.dependsOn(shadowJar)
