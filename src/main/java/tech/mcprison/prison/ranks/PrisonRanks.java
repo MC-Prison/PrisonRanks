@@ -18,14 +18,67 @@
 package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.modules.Module;
+import tech.mcprison.prison.output.Output;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Faizaan A. Datoo
  */
 public class PrisonRanks extends Module {
 
+    /*
+     * Fields & Constants
+     */
+
+    private File ranksFolder;
+    private RankManager rankManager;
+
+    /*
+     * Constructor
+     */
+
     public PrisonRanks(String version) {
         super("Ranks", version, 1);
+    }
+
+    /*
+     * Methods
+     */
+
+    @Override public void enable() {
+
+        // Load up the ranks
+
+        ranksFolder = new File(getDataFolder(), "data");
+        rankManager = new RankManager();
+        try {
+            rankManager.loadRanks(ranksFolder);
+        } catch (IOException e) {
+            Output.get().logError("A ranks file failed to load.", e);
+        }
+
+    }
+
+    @Override public void disable() {
+        try {
+            rankManager.saveRanks(ranksFolder);
+        } catch (IOException e) {
+            Output.get().logError("A ranks file failed to save.", e);
+        }
+    }
+
+    /*
+     * Getters & Setters
+     */
+
+    public File getRanksFolder() {
+        return ranksFolder;
+    }
+
+    public RankManager getRankManager() {
+        return rankManager;
     }
 
 }
