@@ -32,6 +32,7 @@ public class PrisonRanks extends Module {
      * Fields & Constants
      */
 
+    private static PrisonRanks instance;
     private File ranksFolder;
     private RankManager rankManager;
 
@@ -48,13 +49,14 @@ public class PrisonRanks extends Module {
      */
 
     @Override public void enable() {
+        instance = this;
 
         // Load up the ranks
 
         ranksFolder = new File(getDataFolder(), "data");
-        rankManager = new RankManager();
+        rankManager = new RankManager(ranksFolder);
         try {
-            rankManager.loadRanks(ranksFolder);
+            rankManager.loadRanks();
         } catch (IOException e) {
             Output.get().logError("A ranks file failed to load.", e);
         }
@@ -63,7 +65,7 @@ public class PrisonRanks extends Module {
 
     @Override public void disable() {
         try {
-            rankManager.saveRanks(ranksFolder);
+            rankManager.saveRanks();
         } catch (IOException e) {
             Output.get().logError("A ranks file failed to save.", e);
         }
@@ -72,6 +74,10 @@ public class PrisonRanks extends Module {
     /*
      * Getters & Setters
      */
+
+    public static PrisonRanks getInstance() {
+        return instance;
+    }
 
     public File getRanksFolder() {
         return ranksFolder;

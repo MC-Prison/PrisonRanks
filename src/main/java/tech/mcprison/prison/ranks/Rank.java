@@ -17,11 +17,66 @@
 
 package tech.mcprison.prison.ranks;
 
+import tech.mcprison.prison.store.AbstractJsonable;
+
 /**
  * Represents a single rank.
  *
  * @author Faizaan A. Datoo
  */
-public class Rank {
+public class Rank extends AbstractJsonable<Rank> {
+
+    /*
+     * Fields & Constants
+     */
+
+    // The unique identifier used to distinguish this rank from others - this never changes.
+    public int id;
+
+    // The name of this rank, which is used with the user to identify ranks.
+    public String name;
+
+    // The tag that this rank has. It can be used as either a prefix or a suffix, depending on user preferences.
+    public String tag;
+
+    // The general cost of this rank, unit-independent. This value holds true for both XP and cost.
+    public double cost;
+
+    /*
+     * equals() and hashCode()
+     */
+
+    @Override public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Rank)) {
+            return false;
+        }
+
+        Rank rank = (Rank) o;
+
+        if (id != rank.id) {
+            return false;
+        }
+        if (Double.compare(rank.cost, cost) != 0) {
+            return false;
+        }
+        if (!name.equals(rank.name)) {
+            return false;
+        }
+        return tag != null ? tag.equals(rank.tag) : rank.tag == null;
+    }
+
+    @Override public int hashCode() {
+        int result;
+        long temp;
+        result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (tag != null ? tag.hashCode() : 0);
+        temp = Double.doubleToLongBits(cost);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 
 }
