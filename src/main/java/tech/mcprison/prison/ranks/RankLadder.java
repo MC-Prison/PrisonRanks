@@ -19,7 +19,7 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.store.AbstractJsonable;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      */
     public RankLadder(String name) {
         this.name = name.toLowerCase();
-        this.ranks = new LinkedHashMap<>();
+        this.ranks = new HashMap<>();
     }
 
     /*
@@ -74,10 +74,15 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
 
         ranks.remove(position);
 
+        // Move everything down one.
+
         int i = position + 1;
 
-        while(i <= ranks.size()) {
-            // TODO Finish this
+        while (i <= ranks.size()) {
+            Rank rank = ranks.get(i);
+            ranks.remove(i);
+            ranks.put(i - 1, rank);
+            i++;
         }
 
     }
