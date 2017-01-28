@@ -33,8 +33,9 @@ public class PrisonRanks extends Module {
      */
 
     private static PrisonRanks instance;
-    private File ranksFolder;
+    private File ranksFolder, laddersFolder;
     private RankManager rankManager;
+    private LadderManager ladderManager;
 
     /*
      * Constructor
@@ -58,8 +59,19 @@ public class PrisonRanks extends Module {
         try {
             rankManager.loadRanks();
         } catch (IOException e) {
-            Output.get().logError("A ranks file failed to load.", e);
+            Output.get().logError("A rank file failed to load.", e);
         }
+
+        // Load up the ladders
+
+        laddersFolder = new File(ranksFolder, "ladders");
+        ladderManager = new LadderManager(laddersFolder);
+        try {
+            ladderManager.loadLadders();
+        } catch (IOException e) {
+            Output.get().logError("A ladder file failed to load.", e);
+        }
+
 
     }
 
@@ -85,6 +97,14 @@ public class PrisonRanks extends Module {
 
     public RankManager getRankManager() {
         return rankManager;
+    }
+
+    public File getLaddersFolder() {
+        return laddersFolder;
+    }
+
+    public LadderManager getLadderManager() {
+        return ladderManager;
     }
 
 }

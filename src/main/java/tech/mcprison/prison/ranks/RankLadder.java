@@ -36,8 +36,9 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * Fields & Constants
      */
 
-    private String name;
-    private Map<Integer, Rank> ranks;
+    public int id;
+    public String name;
+    public Map<Integer, Rank> ranks;
 
     /*
      * Constructor
@@ -113,14 +114,6 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
     /*
      * Getters & Setters
      */
-
-    public String getName() {
-        return name;
-    }
-
-    public Map<Integer, Rank> getRanks() {
-        return ranks;
-    }
 
     /**
      * Returns the next highest rank in the ladder.
