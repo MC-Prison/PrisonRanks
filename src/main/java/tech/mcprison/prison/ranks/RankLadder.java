@@ -116,6 +116,32 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      */
 
     /**
+     * Returns true if this ladder contains a rank with a specified ID.
+     *
+     * @param rankId The ID of the rank to search for.
+     * @return True if the rank was found, false otherwise.
+     */
+    public boolean containsRank(int rankId) {
+        return ranks.values().stream().anyMatch(rank -> rank.id == rankId);
+    }
+
+    /**
+     * Returns the position of the specified {@link Rank} in this ladder.
+     *
+     * @param rank The {@link Rank} to retrieve the position of.
+     * @return The position of the rank, or -1 if the rank was not found.
+     */
+    public int getPositionOfRank(Rank rank) {
+        for (Map.Entry<Integer, Rank> rankEntry : ranks.entrySet()) {
+            if (rankEntry.getValue().equals(rank)) {
+                return rankEntry.getKey();
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Returns the next highest rank in the ladder.
      *
      * @param oldPosition The position of the current rank.

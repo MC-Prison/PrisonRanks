@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Manages the creation, removal, and management of ladders.
@@ -213,6 +214,19 @@ public class LadderManager {
      */
     public List<RankLadder> getLadders() {
         return loadedLadders;
+    }
+
+    /**
+     * Returns a list of the ladders which contain a rank.
+     * If the server is set up correctly, the list should never be empty (the default ladder will at least be present). However,
+     * it is safer to check for this condition for a fail-safe.
+     *
+     * @param rankId The ID of the rank to check each ladder against.
+     * @return A list of {@link RankLadder}s with the matched criteria.
+     */
+    public List<RankLadder> getLaddersWithRank(int rankId) {
+        return loadedLadders.stream().filter(rankLadder -> rankLadder.containsRank(rankId))
+            .collect(Collectors.toList());
     }
 
 }
