@@ -176,4 +176,30 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
         return highest;
     }
 
+    /*
+     * equals() and hashCode()
+     */
+
+    @Override public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RankLadder)) {
+            return false;
+        }
+
+        RankLadder that = (RankLadder) o;
+
+        if (id != that.id) {
+            return false;
+        }
+        return name.equals(that.name);
+    }
+
+    @Override public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        return result;
+    }
+
 }

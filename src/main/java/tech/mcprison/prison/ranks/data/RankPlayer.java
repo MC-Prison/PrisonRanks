@@ -36,4 +36,25 @@ public class RankPlayer extends AbstractJsonable<RankPlayer> {
     public UUID uid;
     public HashMap<String, Integer> ranks; // <Ladder Name, Rank ID>
 
+    /*
+     * equals() and hashCode()
+     */
+
+    @Override public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RankPlayer)) {
+            return false;
+        }
+
+        RankPlayer that = (RankPlayer) o;
+
+        return uid.equals(that.uid);
+    }
+
+    @Override public int hashCode() {
+        return uid.hashCode();
+    }
+
 }
