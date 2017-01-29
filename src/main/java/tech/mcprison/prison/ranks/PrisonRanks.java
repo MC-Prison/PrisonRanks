@@ -23,6 +23,7 @@ import tech.mcprison.prison.output.Output;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Faizaan A. Datoo
@@ -74,11 +75,36 @@ public class PrisonRanks extends Module {
         } catch (IOException e) {
             Output.get().logError("A ladder file failed to load.", e);
         }
+        createDefaultLadder();
 
         // Load up the commands
 
         Prison.get().getCommandHandler().registerCommands(new Commands());
 
+    }
+
+    /**
+     * A default ladder is absolutely necessary on the server, so let's create it if it doesn't exist.
+     */
+    private void createDefaultLadder() {
+        if (!ladderManager.getLadder("default").isPresent()) {
+            Optional<RankLadder> rankLadderOptional = ladderManager.createLadder("default");
+
+            if (!rankLadderOptional.isPresent()) {
+                Output.get().logError("Could not create the default ladder.");
+                Prison.get().getModuleManager()
+                    .setStatus(this.getName(), "&cNo default ladder found.");
+                return;
+            }
+
+            try {
+                ladderManager.saveLadder(rankLadderOptional.get());
+            } catch (IOException e) {
+                Output.get().logError("Could not save the default ladder.", e);
+                Prison.get().getModuleManager()
+                    .setStatus(this.getName(), "&cNo default ladder found.");
+            }
+        }
     }
 
     @Override public void disable() {
