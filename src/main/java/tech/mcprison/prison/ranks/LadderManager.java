@@ -20,6 +20,7 @@ package tech.mcprison.prison.ranks;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -134,6 +135,7 @@ public class LadderManager {
         RankLadder newLadder = new RankLadder();
         newLadder.id = getNextAvailableId();
         newLadder.name = name;
+        newLadder.ranks = new HashMap<>();
 
         // ... add it to the list...
         loadedLadders.add(newLadder);

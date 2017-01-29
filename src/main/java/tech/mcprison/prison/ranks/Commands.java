@@ -23,6 +23,8 @@ import tech.mcprison.prison.internal.CommandSender;
 import tech.mcprison.prison.output.Output;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,11 +38,13 @@ public class Commands {
      * /ranks command
      */
 
-    @Command(identifier = "ranks create", description = "Creates a new rank", onlyPlayers = false, permissions = {
+    @Command(identifier = "rank create", description = "Creates a new rank", onlyPlayers = false, permissions = {
         "ranks.manage"}) public void createRank(CommandSender sender,
         @Arg(name = "name", description = "The name of this rank.") String name,
         //
         @Arg(name = "cost", description = "The cost of this rank.") double cost, //
+        @Arg(name = "ladder", description = "The ladder to put this rank on.", def = "default")
+            String ladder, //
         @Arg(name = "tag", description = "The tag to use for this rank.", def = "none") String tag
         //
     ) {
@@ -49,6 +53,15 @@ public class Commands {
         if (PrisonRanks.getInstance().getRankManager().getRank(name).isPresent()) {
             Output.get()
                 .sendWarn(sender, "A rank by this name already exists. Try a different name.");
+            return;
+        }
+
+        // Fetch the ladder first, so we can see if it exists
+
+        Optional<RankLadder> rankLadderOptional =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladder);
+        if (!rankLadderOptional.isPresent()) {
+            Output.get().sendWarn(sender, "A ladder by the name of '%s' does not exist.", ladder);
             return;
         }
 
@@ -78,14 +91,37 @@ public class Commands {
             Output.get().logError("Rank could not be written to disk.", e);
         }
 
+        // Add the ladder
+
+        rankLadderOptional.get().addRank(newRank);
+        try {
+            PrisonRanks.getInstance().getLadderManager().saveLadder(rankLadderOptional.get());
+        } catch (IOException e) {
+            Output.get().sendError(sender,
+                "The '%s' ladder could not be saved to disk. Check the console for details.",
+                rankLadderOptional.get().name);
+            Output.get().logError("Ladder could not be written to disk.", e);
+        }
+
+        // Tell the player the good news!
+        Output.get()
+            .sendInfo(sender, "Your new rank, '%s', was created in the ladder '%s'", name, ladder);
+
     }
 
-    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
+    @Command(identifier = "rank list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
         "ranks.manage"}) public void listRanks(CommandSender sender) {
         for (Rank rank : PrisonRanks.getInstance().getRankManager().getRanks()) {
+
+            List<String> ladders = new ArrayList<>();
+            for (RankLadder ladder : PrisonRanks.getInstance().getLadderManager()
+                .getLaddersWithRank(rank.id)) {
+                ladders.add(ladder.name);
+            }
+
             Output.get().sendInfo(sender, String
                 .join(" - ", String.valueOf(rank.id), rank.name, String.valueOf(rank.cost),
-                    rank.tag));
+                    rank.tag, "(" + String.join(", ", ladders) + ")"));
         }
     }
 

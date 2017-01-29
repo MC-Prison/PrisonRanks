@@ -19,7 +19,6 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.store.AbstractJsonable;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,7 +37,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
 
     public int id;
     public String name;
-    public Map<Integer, Rank> ranks;
+    public Map<Integer, Integer> ranks; // <Position, RankID>
 
     /*
      * Constructor
@@ -48,16 +47,6 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * For serialization purposes only.
      */
     public RankLadder() {
-    }
-
-    /**
-     * Initialize a new {@link RankLadder}.
-     *
-     * @param name The name of this rank ladder; this is how it will be identified. This will be made lowercase.
-     */
-    public RankLadder(String name) {
-        this.name = name.toLowerCase();
-        this.ranks = new HashMap<>();
     }
 
     /*
@@ -72,7 +61,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * @param rank     The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
-        ranks.put(position, rank);
+        ranks.put(position, rank.id);
     }
 
     /**
@@ -81,7 +70,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * @param rank The {@link Rank} to add.
      */
     public void addRank(Rank rank) {
-        ranks.put(getNextAvailablePosition(), rank);
+        ranks.put(getNextAvailablePosition(), rank.id);
     }
 
     /**
@@ -103,7 +92,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
         int i = position + 1;
 
         while (i <= ranks.size()) {
-            Rank rank = ranks.get(i);
+            int rank = ranks.get(i);
             ranks.remove(i);
             ranks.put(i - 1, rank);
             i++;
@@ -122,7 +111,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * @return True if the rank was found, false otherwise.
      */
     public boolean containsRank(int rankId) {
-        return ranks.values().stream().anyMatch(rank -> rank.id == rankId);
+        return ranks.values().stream().anyMatch(rank -> rank == rankId);
     }
 
     /**
@@ -132,8 +121,8 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * @return The position of the rank, or -1 if the rank was not found.
      */
     public int getPositionOfRank(Rank rank) {
-        for (Map.Entry<Integer, Rank> rankEntry : ranks.entrySet()) {
-            if (rankEntry.getValue().equals(rank)) {
+        for (Map.Entry<Integer, Integer> rankEntry : ranks.entrySet()) {
+            if (rankEntry.getValue() == rank.id) {
                 return rankEntry.getKey();
             }
         }
@@ -145,13 +134,13 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
      * Returns the next highest rank in the ladder.
      *
      * @param oldPosition The position of the current rank.
-     * @return An optional containing either the rank if there is a next rank in the ladder, or empty if there isn't.
+     * @return An optional containing either the rank if there is a next rank in the ladder, or empty if there isn't or if the rank does not exist anymore.
      */
     public Optional<Rank> getNext(int oldPosition) {
 
-        for (Map.Entry<Integer, Rank> rankEntry : ranks.entrySet()) {
+        for (Map.Entry<Integer, Integer> rankEntry : ranks.entrySet()) {
             if (rankEntry.getKey() >= oldPosition) {
-                return Optional.of(rankEntry.getValue());
+                return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getValue());
             }
         }
 
@@ -162,7 +151,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
 
         for (int position = oldPosition - 1; position >= 0; position--) {
             if (ranks.containsKey(position)) {
-                return Optional.of(ranks.get(position));
+                return PrisonRanks.getInstance().getRankManager().getRank(ranks.get(position));
             }
         }
 
