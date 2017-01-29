@@ -17,6 +17,7 @@
 
 package tech.mcprison.prison.ranks;
 
+import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.output.Output;
 
@@ -55,6 +56,7 @@ public class PrisonRanks extends Module {
         // Load up the ranks
 
         ranksFolder = new File(getDataFolder(), "data");
+        ranksFolder.mkdir();
         rankManager = new RankManager(ranksFolder);
         try {
             rankManager.loadRanks();
@@ -65,6 +67,7 @@ public class PrisonRanks extends Module {
         // Load up the ladders
 
         laddersFolder = new File(ranksFolder, "ladders");
+        laddersFolder.mkdir();
         ladderManager = new LadderManager(laddersFolder);
         try {
             ladderManager.loadLadders();
@@ -72,6 +75,9 @@ public class PrisonRanks extends Module {
             Output.get().logError("A ladder file failed to load.", e);
         }
 
+        // Load up the commands
+
+        Prison.get().getCommandHandler().registerCommands(new Commands());
 
     }
 
