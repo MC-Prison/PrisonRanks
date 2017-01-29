@@ -97,6 +97,10 @@ public class PrisonRanks extends Module {
 
         Prison.get().getCommandHandler().registerCommands(new Commands());
 
+        // Load up all else
+
+        new FirstJoinHandler();
+
     }
 
     /**

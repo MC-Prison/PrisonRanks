@@ -18,9 +18,11 @@
 package tech.mcprison.prison.ranks.managers;
 
 import com.google.common.eventbus.Subscribe;
+import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.events.PlayerJoinEvent;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.RankPlayer;
+import tech.mcprison.prison.ranks.events.FirstJoinEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +51,8 @@ public class PlayerManager {
     public PlayerManager(File playerFolder) {
         this.playerFolder = playerFolder;
         this.players = new ArrayList<>();
+
+        Prison.get().getEventBus().register(this);
     }
 
     /*
@@ -144,7 +148,10 @@ public class PlayerManager {
                 Output.get().logError(
                     "Failed to create new player data file for player " + event.getPlayer()
                         .getName(), e);
+                return;
             }
+
+            Prison.get().getEventBus().post(new FirstJoinEvent(newPlayer));
         }
     }
 
