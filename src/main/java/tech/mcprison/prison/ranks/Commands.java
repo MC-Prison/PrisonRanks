@@ -21,6 +21,8 @@ import tech.mcprison.prison.commands.Arg;
 import tech.mcprison.prison.commands.Command;
 import tech.mcprison.prison.internal.CommandSender;
 import tech.mcprison.prison.output.Output;
+import tech.mcprison.prison.ranks.data.Rank;
+import tech.mcprison.prison.ranks.data.RankLadder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,13 +43,11 @@ public class Commands {
     @Command(identifier = "rank create", description = "Creates a new rank", onlyPlayers = false, permissions = {
         "ranks.manage"}) public void createRank(CommandSender sender,
         @Arg(name = "name", description = "The name of this rank.") String name,
-        //
-        @Arg(name = "cost", description = "The cost of this rank.") double cost, //
+        @Arg(name = "cost", description = "The cost of this rank.") double cost,
         @Arg(name = "ladder", description = "The ladder to put this rank on.", def = "default")
-            String ladder, //
-        @Arg(name = "tag", description = "The tag to use for this rank.", def = "none") String tag
-        //
-    ) {
+            String ladder,
+        @Arg(name = "tag", description = "The tag to use for this rank.", def = "none")
+            String tag) {
 
         // Ensure a rank with the name doesn't already exist
         if (PrisonRanks.getInstance().getRankManager().getRank(name).isPresent()) {

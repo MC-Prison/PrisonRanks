@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tech.mcprison.prison.ranks;
+package tech.mcprison.prison.ranks.data;
 
 import tech.mcprison.prison.store.AbstractJsonable;
 

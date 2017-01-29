@@ -20,6 +20,10 @@ package tech.mcprison.prison.ranks;
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.output.Output;
+import tech.mcprison.prison.ranks.data.RankLadder;
+import tech.mcprison.prison.ranks.managers.LadderManager;
+import tech.mcprison.prison.ranks.managers.PlayerManager;
+import tech.mcprison.prison.ranks.managers.RankManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +39,10 @@ public class PrisonRanks extends Module {
      */
 
     private static PrisonRanks instance;
-    private File ranksFolder, laddersFolder;
+    private File ranksFolder, laddersFolder, playersFolder;
     private RankManager rankManager;
     private LadderManager ladderManager;
+    private PlayerManager playerManager;
 
     /*
      * Constructor
@@ -76,6 +81,17 @@ public class PrisonRanks extends Module {
             Output.get().logError("A ladder file failed to load.", e);
         }
         createDefaultLadder();
+
+        // Load up the players
+
+        playersFolder = new File(ranksFolder, "players");
+        playersFolder.mkdir();
+        playerManager = new PlayerManager(playersFolder);
+        try {
+            playerManager.loadPlayers();
+        } catch (IOException e) {
+            Output.get().logError("A player file failed to load.", e);
+        }
 
         // Load up the commands
 
@@ -137,6 +153,14 @@ public class PrisonRanks extends Module {
 
     public LadderManager getLadderManager() {
         return ladderManager;
+    }
+
+    public File getPlayersFolder() {
+        return playersFolder;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
 }

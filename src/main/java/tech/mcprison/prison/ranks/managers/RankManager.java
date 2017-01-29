@@ -15,7 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tech.mcprison.prison.ranks;
+package tech.mcprison.prison.ranks.managers;
+
+import tech.mcprison.prison.ranks.PrisonRanks;
+import tech.mcprison.prison.ranks.data.Rank;
 
 import java.io.File;
 import java.io.IOException;
