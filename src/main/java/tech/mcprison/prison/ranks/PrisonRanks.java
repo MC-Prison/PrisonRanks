@@ -167,4 +167,8 @@ public class PrisonRanks extends Module {
         return playerManager;
     }
 
+    public RankLadder getDefaultLadder() {
+        return getLadderManager().getLadder("default").orElseThrow(IllegalStateException::new);
+    }
+
 }
