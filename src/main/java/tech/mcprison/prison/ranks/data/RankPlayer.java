@@ -17,10 +17,12 @@
 
 package tech.mcprison.prison.ranks.data;
 
+import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.store.AbstractJsonable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -81,6 +83,20 @@ public class RankPlayer extends AbstractJsonable<RankPlayer> {
 
         // ... and then remove it!
         ranks.remove(ladderName);
+    }
+
+    /*
+     * Getters & Setters
+     */
+
+    /**
+     * Retrieves the rank that this player has in a certain ladder, if any.
+     *
+     * @param ladder The ladder to check.
+     * @return An optional containing the {@link Rank} if found, or empty if there isn't a rank by that ladder for this player.
+     */
+    public Optional<Rank> getRank(RankLadder ladder) {
+        return PrisonRanks.getInstance().getRankManager().getRank(ranks.get(ladder.name));
     }
 
     /*

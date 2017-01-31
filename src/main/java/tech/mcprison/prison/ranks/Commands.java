@@ -17,12 +17,16 @@
 
 package tech.mcprison.prison.ranks;
 
+import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.commands.Arg;
 import tech.mcprison.prison.commands.Command;
+import tech.mcprison.prison.economy.Economy;
 import tech.mcprison.prison.internal.CommandSender;
+import tech.mcprison.prison.internal.Player;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
+import tech.mcprison.prison.ranks.data.RankPlayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +41,97 @@ import java.util.Optional;
 public class Commands {
 
     /*
-     * /ranks command
+     * /rankup command
+     */
+
+    @Command(identifier = "rankup", description = "Ranks up to the next rank.", permissions = {
+        "ranks.rankup"}) public void rankUp(Player sender,
+        @Arg(name = "ladder", description = "The ladder to rank up on.", def = "default")
+            String ladderName) {
+
+        // RETRIEVE THE LADDER
+
+        // TODO Ladder-based permissions
+
+        Optional<RankLadder> ladderOptional =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+
+        // The ladder doesn't exist
+        if (!ladderOptional.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' does not exist.", ladderName);
+            return;
+        }
+
+        // RETRIEVE THE PLAYER
+
+        Optional<RankPlayer> playerOptional =
+            PrisonRanks.getInstance().getPlayerManager().getPlayer(sender.getUUID());
+
+        // Well, this isn't supposed to happen...
+        if (!playerOptional.isPresent()) {
+            Output.get().sendError(sender,
+                "You don't exist! The server has no records of you. Try rejoining, or contact a server administrator for help.");
+            return;
+        }
+
+        // RANK-UP THE PLAYER
+
+        RankLadder ladder = ladderOptional.get();
+        RankPlayer player = playerOptional.get();
+
+        Optional<Rank> rankOptional = player.getRank(ladder);
+
+        // Validate that the
+
+        if (!rankOptional.isPresent()) {
+            Output.get().sendError(sender,
+                "The rank you are currently in doesn't exist. Alert a server administrator of this problem, because it may indicate file corruption.");
+            return;
+        }
+
+        // Get the next rank
+
+        Optional<Rank> nextRankOptional =
+            ladder.getNext(ladder.getPositionOfRank(rankOptional.get()));
+
+        if (!nextRankOptional.isPresent()) {
+            Output.get().sendInfo(sender, "You are already at the highest rank!");
+            return;
+        }
+
+        Rank nextRank = nextRankOptional.get();
+
+        // TODO Experience support
+
+        Player apiPlayer = Prison.get().getPlatform().getPlayer(player.uid).get();
+
+        Economy economy = Prison.get().getPlatform().getEconomy();
+        if (!economy.canAfford(apiPlayer, nextRank.cost)) {
+            Output.get().sendError(sender,
+                "You don't have enough money to rank up! You still need %s more.",
+                "$" + nextRank.cost);
+            return;
+        }
+
+        economy.removeBalance(apiPlayer, nextRank.cost);
+        player.addRank(ladder, nextRank);
+
+        try {
+            PrisonRanks.getInstance().getPlayerManager().savePlayer(player);
+        } catch (IOException e) {
+            Output.get().sendError(sender,
+                "Your save files have failed to save. Tell an administrator immediately.");
+            Output.get().logError("Player files could not be saved.", e);
+            return;
+        }
+
+        Output.get()
+            .sendInfo(sender, "Congratulations! You have ranked up to rank %s.", nextRank.name);
+
+    }
+
+    /*
+     * /rank command
      */
 
     @Command(identifier = "rank create", description = "Creates a new rank", onlyPlayers = false, permissions = {
