@@ -20,6 +20,7 @@ package tech.mcprison.prison.ranks.data;
 import tech.mcprison.prison.store.AbstractJsonable;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -35,6 +36,52 @@ public class RankPlayer extends AbstractJsonable<RankPlayer> {
 
     public UUID uid;
     public HashMap<String, Integer> ranks; // <Ladder Name, Rank ID>
+
+    /*
+     * Methods
+     */
+
+    /**
+     * Add a rank to this player.
+     * If a rank on this ladder is already attached, it will automatically be removed and replaced with this new one.
+     *
+     * @param ladder The {@link RankLadder} that this rank belongs to.
+     * @param rank   The {@link Rank} to add.
+     * @throws IllegalArgumentException If the rank specified is not on this ladder.
+     */
+    public void addRank(RankLadder ladder, Rank rank) {
+        if (!ladder.containsRank(rank.id)) {
+            throw new IllegalArgumentException("Rank must be on ladder.");
+        }
+
+        // Remove the current rank on this ladder first
+        if (ranks.containsKey(ladder.name)) {
+            ranks.remove(ladder.name);
+        }
+
+        ranks.put(ladder.name, rank.id);
+    }
+
+    /**
+     * Remove a rank from this player.
+     * This will also remove the ladder from this player.
+     *
+     * @param rank The The {@link Rank} to remove.
+     */
+    public void removeRank(Rank rank) {
+
+        // When we loop through, we have to store our ladder name outside the loop to
+        // avoid a concurrent modification exception. So, we'll retrieve the data we need...
+        String ladderName = null;
+        for (Map.Entry<String, Integer> rankEntry : ranks.entrySet()) {
+            if (rankEntry.getValue() == rank.id) { // This is our rank!
+                ladderName = rankEntry.getKey();
+            }
+        }
+
+        // ... and then remove it!
+        ranks.remove(ladderName);
+    }
 
     /*
      * equals() and hashCode()
