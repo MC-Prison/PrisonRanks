@@ -20,6 +20,7 @@ package tech.mcprison.prison.ranks;
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.economy.Economy;
 import tech.mcprison.prison.internal.Player;
+import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.data.RankPlayer;
@@ -33,6 +34,13 @@ import java.util.Optional;
  * @author Faizaan A. Datoo
  */
 public class RankUtil {
+
+    /*
+     * Fields & Constants
+     */
+
+    public static final int RANKUP_SUCCESS = 0, RANKUP_FAILURE = 1, RANKUP_HIGHEST = 2,
+        RANKUP_CANT_AFFORD = 3;
 
     /*
      * Constructor
@@ -63,7 +71,8 @@ public class RankUtil {
         Optional<Rank> nextRankOptional = ladder.getNext(ladder.getPositionOfRank(currentRank));
 
         if (!nextRankOptional.isPresent()) {
-            return RankUpResult.HIGHEST_RANK; // We're already at the highest rank.
+            return new RankUpResult(RANKUP_HIGHEST,
+                currentRank); // We're already at the highest rank.
         }
 
         Rank nextRank = nextRankOptional.get();
@@ -73,7 +82,7 @@ public class RankUtil {
 
         Economy economy = Prison.get().getPlatform().getEconomy();
         if (!economy.canAfford(prisonPlayer, nextRank.cost)) {
-            return RankUpResult.CANT_AFFORD;
+            return new RankUpResult(RANKUP_CANT_AFFORD, nextRank);
         }
 
         economy.removeBalance(prisonPlayer, nextRank.cost);
@@ -83,24 +92,28 @@ public class RankUtil {
         try {
             PrisonRanks.getInstance().getPlayerManager().savePlayer(player);
         } catch (IOException e) {
-            return RankUpResult.FAILED;
+            Output.get().logError("An error occurred while saving player files.", e);
+            return new RankUpResult(RANKUP_FAILURE, null);
         }
 
-        return RankUpResult.SUCCESS;
+        return new RankUpResult(RANKUP_SUCCESS, nextRank);
     }
 
     /*
-     * Enums
+     * Member Classes
      */
 
 
-    /**
-     * The result from {@link #rankUpPlayer(RankPlayer, String)}.
-     */
-    public enum RankUpResult {
+    static class RankUpResult {
 
-        SUCCESS, HIGHEST_RANK, CANT_AFFORD, FAILED
+        public int status;
+        public Rank rank;
 
+        public RankUpResult(int status, Rank rank) {
+            this.status = status;
+            this.rank = rank;
+        }
     }
+
 
 }

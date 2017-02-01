@@ -78,15 +78,19 @@ public class Commands {
 
         RankUtil.RankUpResult result = RankUtil.rankUpPlayer(player, ladderName);
 
-        switch (result) {
-            case SUCCESS:
+        switch (result.status) {
+            case RankUtil.RANKUP_SUCCESS:
                 Output.get().sendInfo(sender, "Congratulations! You have ranked up.");
                 break;
-            case CANT_AFFORD:
+            case RankUtil.RANKUP_CANT_AFFORD:
                 Output.get().sendError(sender, "You don't have enough money to rank up!");
                 break;
-            case HIGHEST_RANK:
+            case RankUtil.RANKUP_HIGHEST:
                 Output.get().sendInfo(sender, "You are already at the highest rank!");
+                break;
+            case RankUtil.RANKUP_FAILURE:
+                Output.get().sendInfo(sender,
+                    "Failed to retrieve or write data. Your files may be corrupted. Alert a server administrator.");
                 break;
         }
 
