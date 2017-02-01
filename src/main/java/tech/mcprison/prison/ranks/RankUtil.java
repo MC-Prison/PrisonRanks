@@ -26,6 +26,7 @@ import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.data.RankPlayer;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Optional;
 
 /**
@@ -97,6 +98,10 @@ public class RankUtil {
         }
 
         return new RankUpResult(RANKUP_SUCCESS, nextRank);
+    }
+
+    public static String doubleToDollarString(double val) {
+        return NumberFormat.getCurrencyInstance().format(val);
     }
 
     /*

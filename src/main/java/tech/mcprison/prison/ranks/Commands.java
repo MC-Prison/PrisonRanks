@@ -89,10 +89,13 @@ public class Commands {
 
         switch (result.status) {
             case RankUtil.RANKUP_SUCCESS:
-                Output.get().sendInfo(sender, "Congratulations! You have ranked up.");
+                Output.get().sendInfo(sender, "Congratulations! You have ranked up to rank '%s'.",
+                    result.rank.name);
                 break;
             case RankUtil.RANKUP_CANT_AFFORD:
-                Output.get().sendError(sender, "You don't have enough money to rank up!");
+                Output.get().sendError(sender,
+                    "You don't have enough money to rank up! The next rank costs %s.",
+                    RankUtil.doubleToDollarString(result.rank.cost));
                 break;
             case RankUtil.RANKUP_HIGHEST:
                 Output.get().sendInfo(sender, "You are already at the highest rank!");
