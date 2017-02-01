@@ -96,7 +96,8 @@ public class RankPlayer extends AbstractJsonable<RankPlayer> {
      * @return An optional containing the {@link Rank} if found, or empty if there isn't a rank by that ladder for this player.
      */
     public Optional<Rank> getRank(RankLadder ladder) {
-        return PrisonRanks.getInstance().getRankManager().getRank(ranks.get(ladder.name));
+        int id = ranks.get(ladder.name);
+        return PrisonRanks.getInstance().getRankManager().getRank(id);
     }
 
     /*

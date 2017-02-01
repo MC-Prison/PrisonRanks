@@ -49,7 +49,14 @@ public class Commands {
 
         // RETRIEVE THE LADDER
 
-        // TODO Ladder-based permissions
+        // This player has to have permission to rank up on this ladder.
+        if (!ladderName.equalsIgnoreCase("default") && !sender
+            .hasPermission("ranks.rankup." + ladderName.toLowerCase())) {
+            Output.get()
+                .sendError(sender, "You need the permission '%s' to rank up on this ladder.",
+                    "ranks.rankup." + ladderName.toLowerCase());
+            return;
+        }
 
         Optional<RankLadder> ladderOptional =
             PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
@@ -61,6 +68,8 @@ public class Commands {
         }
 
         // RETRIEVE THE PLAYER
+
+        Output.get().logInfo("UUID: %s", sender.getUUID().toString());
 
         Optional<RankPlayer> playerOptional =
             PrisonRanks.getInstance().getPlayerManager().getPlayer(sender.getUUID());

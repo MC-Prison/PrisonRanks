@@ -24,6 +24,7 @@ import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.ranks.events.FirstJoinEvent;
 
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -55,6 +56,12 @@ public class FirstJoinHandler {
             player.addRank(PrisonRanks.getInstance().getDefaultLadder(), firstRank.get());
         } else {
             Output.get().logWarn("There are no ranks on the server! New player has no rank.");
+        }
+
+        try {
+            PrisonRanks.getInstance().getPlayerManager().savePlayer(player);
+        } catch (IOException e) {
+            Output.get().logError("Could not save player files.", e);
         }
     }
 

@@ -140,7 +140,7 @@ public class RankLadder extends AbstractJsonable<RankLadder> {
     public Optional<Rank> getNext(int oldPosition) {
 
         for (Map.Entry<Integer, Integer> rankEntry : ranks.entrySet()) {
-            if (rankEntry.getKey() >= oldPosition) {
+            if (rankEntry.getKey() > oldPosition) {
                 return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getValue());
             }
         }

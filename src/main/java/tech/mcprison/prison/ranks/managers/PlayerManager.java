@@ -142,6 +142,8 @@ public class PlayerManager {
             newPlayer.uid = event.getPlayer().getUUID();
             newPlayer.ranks = new HashMap<>();
 
+            players.add(newPlayer);
+
             try {
                 savePlayer(newPlayer);
             } catch (IOException e) {
