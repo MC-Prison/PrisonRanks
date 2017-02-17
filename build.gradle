@@ -63,11 +63,11 @@ repositories {
     maven { url = 'http://repo.spongepowered.org/maven' }
     maven { url = "https://hub.spigotmc.org/nexus/content/groups/public" }
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
-    maven { url = "https://dmp9software.co.uk/artifactory/libs-release-local/" }
+    maven { url = "https://dmp9.uk/artifactory/libs-release-local/" }
 }
 
 dependencies {
-    compile group: 'tech.mcprison.prison', name: 'prison-core', version: '1.0'
+    compile group: 'tech.mcprison.prison', name: 'prison-core', version: '0.1.0'
     provided group: 'org.spigotmc', name: 'spigot-api', version: '1.9.4-R0.1-SNAPSHOT'
     provided group: 'org.spongepowered', name: 'spongeapi', version: '5.0.0'
     testCompile group: 'junit', name: 'junit', version: '4.11'
