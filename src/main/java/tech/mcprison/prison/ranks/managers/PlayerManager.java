@@ -19,8 +19,8 @@ package tech.mcprison.prison.ranks.managers;
 
 import com.google.common.eventbus.Subscribe;
 import tech.mcprison.prison.Prison;
-import tech.mcprison.prison.events.PlayerJoinEvent;
-import tech.mcprison.prison.output.Output;
+import tech.mcprison.prison.internal.events.PlayerJoinEvent;
+import tech.mcprison.prison.Output;
 import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.ranks.events.FirstJoinEvent;
 
