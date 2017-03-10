@@ -20,7 +20,7 @@ package tech.mcprison.prison.ranks;
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.economy.Economy;
 import tech.mcprison.prison.internal.Player;
-import tech.mcprison.prison.Output;
+import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.data.RankPlayer;

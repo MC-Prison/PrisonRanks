@@ -19,7 +19,7 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.modules.Module;
-import tech.mcprison.prison.Output;
+import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.managers.LadderManager;
 import tech.mcprison.prison.ranks.managers.PlayerManager;
