@@ -17,14 +17,12 @@
 
 package tech.mcprison.prison.ranks.data;
 
-import tech.mcprison.prison.store.AbstractJsonable;
-
 /**
  * Represents a single rank.
  *
  * @author Faizaan A. Datoo
  */
-public class Rank extends AbstractJsonable<Rank> {
+public class Rank {
 
     /*
      * Fields & Constants

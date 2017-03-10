@@ -17,6 +17,7 @@
 
 package tech.mcprison.prison.ranks.managers;
 
+import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.Rank;
 
@@ -64,12 +65,11 @@ public class RankManager {
      * Loads a rank from a file into the loaded ranks list.
      * After this method is called, the rank will be ready for use in the server.
      *
-     * @param rankFile The {@link File} that this rank is stored in, usually with the extension ".rank.json".
+     * @param rankFile The key that this rank is stored as. Case sensitive.
      * @throws IOException If the file could not be read or does not exist.
      */
-    public void loadRank(File rankFile) throws IOException {
-        Rank dummy = new Rank();
-        Rank rank = dummy.fromFile(rankFile);
+    public void loadRank(String rankFile) throws IOException {
+        Rank rank = Prison.get().getPlatform().getStorage().read(rankFile, Rank.class);
         loadedRanks.add(rank);
     }
 
@@ -80,24 +80,19 @@ public class RankManager {
      * @throws IOException If the folder could not be found, or if a file could not be read or does not exist.
      */
     public void loadRanks() throws IOException {
-        File[] rankFiles = rankFolder.listFiles((dir, name) -> name.endsWith(RANK_EXTENSION));
-
-        if (rankFiles != null) {
-            for (File file : rankFiles) {
-                loadRank(file);
-            }
-        }
+        List<Rank> ranks = Prison.get().getPlatform().getStorage().readAll(Rank.class);
+        loadedRanks.addAll(ranks);
     }
 
     /**
      * Saves a rank to its save file.
      *
      * @param rank     The {@link Rank} to save.
-     * @param saveFile The file to write the rank to. This does not yet have to exist. Convention-wise, it should be named the rank identifier plus the extension ".rank.json".
+     * @param saveFile The key to write the rank as. Case sensitive.
      * @throws IOException If the rank could not be serialized, or if the rank could not be saved to the file.
      */
-    public void saveRank(Rank rank, File saveFile) throws IOException {
-        rank.toFile(saveFile);
+    public void saveRank(Rank rank, String saveFile) throws IOException {
+        Prison.get().getPlatform().getStorage().write(saveFile, rank);
     }
 
     /**
@@ -107,7 +102,7 @@ public class RankManager {
      * @throws IOException If the rank could not be serialized, or if the rank could not be saved to the file.
      */
     public void saveRank(Rank rank) throws IOException {
-        this.saveRank(rank, new File(rankFolder, rank.id + RANK_EXTENSION));
+        this.saveRank(rank, "rank_" + rank.id);
     }
 
     /**
@@ -118,14 +113,13 @@ public class RankManager {
      */
     public void saveRanks() throws IOException {
         for (Rank rank : loadedRanks) {
-            File rankFile = new File(rankFolder, rank.id + RANK_EXTENSION);
-            rank.toFile(rankFile);
+            saveRank(rank);
         }
     }
 
     /**
      * Creates a new rank with the specified parameters.
-     * This new rank will be loaded, but will not be written to disk until {@link #saveRank(Rank, File)} is called.
+     * This new rank will be loaded, but will not be written to disk until {@link #saveRank(Rank, String)} is called.
      *
      * @param name The name of this rank, for use with the user (i.e. this will be shown to the user).
      * @param tag  The tag of this rank, which is used for prefixes/suffixes.
@@ -188,12 +182,8 @@ public class RankManager {
         // ... TODO move players to the previous rank...
 
         // ... and remove the rank's save files.
-        File saveFile = new File(rankFolder, rank.id + RANK_EXTENSION);
-        if (!saveFile.exists()) {
-            return true;
-        } else {
-            return saveFile.delete();
-        }
+        Prison.get().getPlatform().getStorage().delete("rank_" + rank.id, Rank.class);
+        return true;
     }
 
     /**

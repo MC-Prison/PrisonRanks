@@ -17,6 +17,7 @@
 
 package tech.mcprison.prison.ranks.managers;
 
+import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.data.RankLadder;
 
 import java.io.File;
@@ -65,40 +66,34 @@ public class LadderManager {
      * Loads a ladder from a file into the loaded ladders list.
      * After this method is called, the ladder will be ready for use in the server.
      *
-     * @param ladderFile The {@link File} that this ladder is stored in, usually with the extension ".ladder.json".
+     * @param fileKey The keye that this ladder is stored as. This is case-sensitive.
      * @throws IOException If the file could not be read or does not exist.
      */
-    public void loadLadder(File ladderFile) throws IOException {
-        RankLadder dummy = new RankLadder();
-        RankLadder ladder = dummy.fromFile(ladderFile);
+    public void loadLadder(String fileKey) throws IOException {
+        RankLadder ladder = Prison.get().getPlatform().getStorage().read(fileKey, RankLadder.class);
         loadedLadders.add(ladder);
     }
 
     /**
-     * Loads every file within a directory with the extension ".ladder.json".
-     * If one file could not be loaded, it will simply be skipped.
+     * Loads every {@link RankLadder} stored to disk.
      *
      * @throws IOException If the folder could not be found, or if a file could not be read or does not exist.
      */
     public void loadLadders() throws IOException {
-        File[] ladderFiles = ladderFolder.listFiles((dir, name) -> name.endsWith(LADDER_EXTENSION));
-
-        if (ladderFiles != null) {
-            for (File file : ladderFiles) {
-                loadLadder(file);
-            }
-        }
+        List<RankLadder> ladders =
+            Prison.get().getPlatform().getStorage().readAll(RankLadder.class);
+        loadedLadders.addAll(ladders);
     }
 
     /**
      * Saves a ladder to its save file.
      *
-     * @param ladder   The {@link RankLadder} to save.
-     * @param saveFile The file to write the ladder to. This does not yet have to exist. Convention-wise, it should be named the ladder identifier plus the extension ".ladder.json".
+     * @param ladder  The {@link RankLadder} to save.
+     * @param fileKey The key to write the ladder as.
      * @throws IOException If the ladder could not be serialized, or if the ladder could not be saved to the file.
      */
-    public void saveLadder(RankLadder ladder, File saveFile) throws IOException {
-        ladder.toFile(saveFile);
+    public void saveLadder(RankLadder ladder, String fileKey) throws IOException {
+        Prison.get().getPlatform().getStorage().write(fileKey, ladder);
     }
 
     /**
@@ -108,25 +103,24 @@ public class LadderManager {
      * @throws IOException If the ladder could not be serialized, or if the ladder could not be saved to the file.
      */
     public void saveLadder(RankLadder ladder) throws IOException {
-        this.saveLadder(ladder, new File(ladderFolder, ladder.id + LADDER_EXTENSION));
+        this.saveLadder(ladder, "ladder_" + ladder.id);
     }
 
     /**
      * Saves all the loaded ladders to their own files within a directory.
-     * Each ladder file will be assigned a name in the format: ladder identifier + {@link #LADDER_EXTENSION}.
+     * Each ladder file will be assigned a name in the format: ladder_&lt;ladder id&gt;.
      *
      * @throws IOException If the ladderFolder does not exist, or if one of the ladders could not be saved.
      */
     public void saveLadders() throws IOException {
         for (RankLadder ladder : loadedLadders) {
-            File ladderFile = new File(ladderFolder, ladder.id + LADDER_EXTENSION);
-            ladder.toFile(ladderFile);
+            Prison.get().getPlatform().getStorage().write("ladder_" + ladder.id, ladder);
         }
     }
 
     /**
      * Creates a new ladder with the specified parameters.
-     * This new ladder will be loaded, but will not be written to disk until {@link #saveLadder(RankLadder, File)} is called.
+     * This new ladder will be loaded, but will not be written to disk until {@link #saveLadder(RankLadder, String)} is called.
      *
      * @param name The name of this ladder, for use with the user (i.e. this will be shown to the user).
      * @return An optional containing either the {@link RankLadder} if it could be created, or empty
@@ -183,12 +177,8 @@ public class LadderManager {
         // ... TODO Handle affected players ...
 
         // ... and remove the ladder's save files.
-        File saveFile = new File(ladderFolder, ladder.id + LADDER_EXTENSION);
-        if (!saveFile.exists()) {
-            return true;
-        } else {
-            return saveFile.delete();
-        }
+        Prison.get().getPlatform().getStorage().delete("ladder_" + ladder.id, RankLadder.class);
+        return true;
     }
 
     /**

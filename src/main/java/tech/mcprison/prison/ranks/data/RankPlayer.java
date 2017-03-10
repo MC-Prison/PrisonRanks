@@ -18,7 +18,6 @@
 package tech.mcprison.prison.ranks.data;
 
 import tech.mcprison.prison.ranks.PrisonRanks;
-import tech.mcprison.prison.store.AbstractJsonable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,7 @@ import java.util.UUID;
  *
  * @author Faizaan A. Datoo
  */
-public class RankPlayer extends AbstractJsonable<RankPlayer> {
+public class RankPlayer {
 
     /*
      * Fields & Constants

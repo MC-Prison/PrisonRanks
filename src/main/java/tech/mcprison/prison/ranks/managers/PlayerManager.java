@@ -19,7 +19,7 @@ package tech.mcprison.prison.ranks.managers;
 
 import com.google.common.eventbus.Subscribe;
 import tech.mcprison.prison.Prison;
-import tech.mcprison.prison.events.PlayerJoinEvent;
+import tech.mcprison.prison.internal.events.player.PlayerJoinEvent;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.ranks.events.FirstJoinEvent;
@@ -62,12 +62,12 @@ public class PlayerManager {
     /**
      * Loads a player from a file and stores it in the registry for use on the server.
      *
-     * @param playerFile The {@link File} that the player data is stored in, usually suffixed with ".player.json".
+     * @param playerFile The key that the player data is stored as. Case-sensitive.
      * @throws IOException If the file could not be read, or if the file does not exist.
      */
-    public void loadPlayer(File playerFile) throws IOException {
-        RankPlayer dummy = new RankPlayer();
-        RankPlayer player = dummy.fromFile(playerFile);
+    public void loadPlayer(String playerFile) throws IOException {
+        RankPlayer player =
+            Prison.get().getPlatform().getStorage().read(playerFile, RankPlayer.class);
         players.add(player);
     }
 
@@ -77,37 +77,32 @@ public class PlayerManager {
      * @throws IOException If one of the files could not be read, or if the playerFolder does not exist.
      */
     public void loadPlayers() throws IOException {
-        File[] playerFiles = playerFolder.listFiles((dir, name) -> name.endsWith(PLAYER_EXTENSION));
-
-        if (playerFiles != null) {
-            for (File playerFile : playerFiles) {
-                loadPlayer(playerFile);
-            }
-        }
+        List<RankPlayer> players =
+            Prison.get().getPlatform().getStorage().readAll(RankPlayer.class);
+        this.players.addAll(players);
     }
 
     /**
      * Saves a {@link RankPlayer} to disk.
      *
      * @param player     The {@link RankPlayer} to save.
-     * @param playerFile The {@link File} to save to. This file does not have to exist. Convention-wise, the name should be the least significant bits of the UUID, followed by the suffix ".player.json".
+     * @param playerFile The key to save as.
      * @throws IOException If the file could not be created or written to.
      * @see #savePlayer(RankPlayer) To save with the default conventional filename.
      */
-    public void savePlayer(RankPlayer player, File playerFile) throws IOException {
-        player.toFile(playerFile);
+    public void savePlayer(RankPlayer player, String playerFile) throws IOException {
+        Prison.get().getPlatform().getStorage().write(playerFile, player);
     }
 
     public void savePlayer(RankPlayer player) throws IOException {
-        this.savePlayer(player,
-            new File(playerFolder, player.uid.getLeastSignificantBits() + PLAYER_EXTENSION));
+        this.savePlayer(player, "player_" + player.uid.getLeastSignificantBits());
     }
 
     /**
      * Saves every player in the registry.
      *
      * @throws IOException If one of the players could not be saved.
-     * @see #savePlayer(RankPlayer, File)
+     * @see #savePlayer(RankPlayer, String)
      */
     public void savePlayers() throws IOException {
         for (RankPlayer player : players) {

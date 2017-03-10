@@ -56,6 +56,10 @@ public class PrisonRanks extends Module {
      * Methods
      */
 
+    public static PrisonRanks getInstance() {
+        return instance;
+    }
+
     @Override public void enable() {
         instance = this;
 
@@ -127,20 +131,16 @@ public class PrisonRanks extends Module {
         }
     }
 
+    /*
+     * Getters & Setters
+     */
+
     @Override public void disable() {
         try {
             rankManager.saveRanks();
         } catch (IOException e) {
             Output.get().logError("A ranks file failed to save.", e);
         }
-    }
-
-    /*
-     * Getters & Setters
-     */
-
-    public static PrisonRanks getInstance() {
-        return instance;
     }
 
     public File getRanksFolder() {

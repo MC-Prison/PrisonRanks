@@ -18,7 +18,6 @@
 package tech.mcprison.prison.ranks.data;
 
 import tech.mcprison.prison.ranks.PrisonRanks;
-import tech.mcprison.prison.store.AbstractJsonable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,7 +29,7 @@ import java.util.Optional;
  *
  * @author Faizaan A. Datoo
  */
-public class RankLadder extends AbstractJsonable<RankLadder> {
+public class RankLadder {
 
     /*
      * Fields & Constants
