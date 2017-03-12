@@ -18,6 +18,7 @@
 package tech.mcprison.prison.ranks.data;
 
 import tech.mcprison.prison.ranks.PrisonRanks;
+import tech.mcprison.prison.store.Document;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,24 @@ public class RankPlayer {
 
     public UUID uid;
     public HashMap<String, Integer> ranks; // <Ladder Name, Rank ID>
+
+    /*
+     * Document-related
+     */
+
+    public RankPlayer() {}
+
+    public RankPlayer(Document document) {
+        this.uid = (UUID) document.get("uid");
+        this.ranks = (HashMap<String, Integer>) document.get("ranks");
+    }
+
+    public Document toDocument() {
+        Document ret = new Document();
+        ret.put("uid", this.uid);
+        ret.put("ranks", this.ranks);
+        return ret;
+    }
 
     /*
      * Methods

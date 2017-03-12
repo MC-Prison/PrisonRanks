@@ -20,6 +20,8 @@ package tech.mcprison.prison.ranks.managers;
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.Rank;
+import tech.mcprison.prison.store.Collection;
+import tech.mcprison.prison.store.Document;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +40,7 @@ public class RankManager {
      * Fields & Constants
      */
 
-    public static final String RANK_EXTENSION = ".rank.json";
-
-    private File rankFolder;
+    private Collection collection;
     private List<Rank> loadedRanks;
 
     /*
@@ -49,11 +49,9 @@ public class RankManager {
 
     /**
      * Instantiate this {@link RankManager}.
-     *
-     * @param rankFolder The directory to store rank files.
      */
-    public RankManager(File rankFolder) {
-        this.rankFolder = rankFolder;
+    public RankManager(Collection collection) {
+        this.collection = collection;
         this.loadedRanks = new ArrayList<>();
     }
 
@@ -69,8 +67,8 @@ public class RankManager {
      * @throws IOException If the file could not be read or does not exist.
      */
     public void loadRank(String rankFile) throws IOException {
-        Rank rank = Prison.get().getPlatform().getStorage().read(rankFile, Rank.class);
-        loadedRanks.add(rank);
+        Document document = collection.get(rankFile).orElseThrow(IOException::new);
+        loadedRanks.add(new Rank(document));
     }
 
     /**
@@ -80,8 +78,8 @@ public class RankManager {
      * @throws IOException If the folder could not be found, or if a file could not be read or does not exist.
      */
     public void loadRanks() throws IOException {
-        List<Rank> ranks = Prison.get().getPlatform().getStorage().readAll(Rank.class);
-        loadedRanks.addAll(ranks);
+        List<Document> ranks = collection.getAll();
+        ranks.forEach(document -> loadedRanks.add(new Rank(document)));
     }
 
     /**
@@ -92,7 +90,7 @@ public class RankManager {
      * @throws IOException If the rank could not be serialized, or if the rank could not be saved to the file.
      */
     public void saveRank(Rank rank, String saveFile) throws IOException {
-        Prison.get().getPlatform().getStorage().write(saveFile, rank);
+        collection.insert(saveFile, rank.toDocument());
     }
 
     /**
@@ -107,7 +105,6 @@ public class RankManager {
 
     /**
      * Saves all the loaded ranks to their own files within a directory.
-     * Each rank file will be assigned a name in the format: rank identifier + {@link #RANK_EXTENSION}.
      *
      * @throws IOException If the rankFolder does not exist, or if one of the ranks could not be saved.
      */
@@ -182,7 +179,7 @@ public class RankManager {
         // ... TODO move players to the previous rank...
 
         // ... and remove the rank's save files.
-        Prison.get().getPlatform().getStorage().delete("rank_" + rank.id, Rank.class);
+        collection.remove("rank_" + rank.id);
         return true;
     }
 

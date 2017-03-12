@@ -19,6 +19,8 @@ package tech.mcprison.prison.ranks.managers;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.data.RankLadder;
+import tech.mcprison.prison.store.Collection;
+import tech.mcprison.prison.store.Document;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +41,7 @@ public class LadderManager {
      * Fields & Constants
      */
 
-    public static final String LADDER_EXTENSION = ".ladder.json";
-
-    private File ladderFolder;
+    private Collection collection;
     private List<RankLadder> loadedLadders;
 
     /*
@@ -50,11 +50,9 @@ public class LadderManager {
 
     /**
      * Instantiate this {@link LadderManager}.
-     *
-     * @param ladderFolder The directory to store ladder files.
      */
-    public LadderManager(File ladderFolder) {
-        this.ladderFolder = ladderFolder;
+    public LadderManager(Collection collection) {
+        this.collection = collection;
         this.loadedLadders = new ArrayList<>();
     }
 
@@ -70,7 +68,8 @@ public class LadderManager {
      * @throws IOException If the file could not be read or does not exist.
      */
     public void loadLadder(String fileKey) throws IOException {
-        RankLadder ladder = Prison.get().getPlatform().getStorage().read(fileKey, RankLadder.class);
+        Document doc = collection.get(fileKey).orElseThrow(IOException::new);
+        RankLadder ladder = new RankLadder(doc);
         loadedLadders.add(ladder);
     }
 
@@ -80,9 +79,8 @@ public class LadderManager {
      * @throws IOException If the folder could not be found, or if a file could not be read or does not exist.
      */
     public void loadLadders() throws IOException {
-        List<RankLadder> ladders =
-            Prison.get().getPlatform().getStorage().readAll(RankLadder.class);
-        loadedLadders.addAll(ladders);
+        List<Document> documents = collection.getAll();
+        documents.forEach(document -> loadedLadders.add(new RankLadder(document)));
     }
 
     /**
@@ -93,7 +91,7 @@ public class LadderManager {
      * @throws IOException If the ladder could not be serialized, or if the ladder could not be saved to the file.
      */
     public void saveLadder(RankLadder ladder, String fileKey) throws IOException {
-        Prison.get().getPlatform().getStorage().write(fileKey, ladder);
+        collection.insert(fileKey, ladder.toDocument());
     }
 
     /**
@@ -114,7 +112,7 @@ public class LadderManager {
      */
     public void saveLadders() throws IOException {
         for (RankLadder ladder : loadedLadders) {
-            Prison.get().getPlatform().getStorage().write("ladder_" + ladder.id, ladder);
+            saveLadder(ladder);
         }
     }
 
@@ -177,7 +175,7 @@ public class LadderManager {
         // ... TODO Handle affected players ...
 
         // ... and remove the ladder's save files.
-        Prison.get().getPlatform().getStorage().delete("ladder_" + ladder.id, RankLadder.class);
+        collection.remove("ladder_" + ladder.id);
         return true;
     }
 

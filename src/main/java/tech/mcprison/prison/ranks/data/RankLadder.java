@@ -18,6 +18,7 @@
 package tech.mcprison.prison.ranks.data;
 
 import tech.mcprison.prison.ranks.PrisonRanks;
+import tech.mcprison.prison.store.Document;
 
 import java.util.Map;
 import java.util.Optional;
@@ -40,13 +41,23 @@ public class RankLadder {
     public Map<Integer, Integer> ranks; // <Position, RankID>
 
     /*
-     * Constructor
+     * Document-related
      */
 
-    /**
-     * For serialization purposes only.
-     */
-    public RankLadder() {
+    public RankLadder() {}
+
+    public RankLadder(Document document) {
+        this.id = (int) document.get("id");
+        this.name = (String) document.get("name");
+        this.ranks = (Map<Integer, Integer>) document.get("ranks");
+    }
+
+    public Document toDocument() {
+        Document ret = new Document();
+        ret.put("id", this.id);
+        ret.put("name", this.name);
+        ret.put("ranks", this.ranks);
+        return ret;
     }
 
     /*

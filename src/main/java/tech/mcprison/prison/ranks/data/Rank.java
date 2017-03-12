@@ -17,6 +17,8 @@
 
 package tech.mcprison.prison.ranks.data;
 
+import tech.mcprison.prison.store.Document;
+
 /**
  * Represents a single rank.
  *
@@ -39,6 +41,28 @@ public class Rank {
 
     // The general cost of this rank, unit-independent. This value holds true for both XP and cost.
     public double cost;
+
+    /*
+     * Document-related
+     */
+
+    public Rank() {}
+
+    public Rank(Document document) {
+        this.id = (int) document.get("id");
+        this.name = (String) document.get("name");
+        this.tag = (String) document.get("tag");
+        this.cost = (double) document.get("cost");
+    }
+
+    public Document toDocument() {
+        Document ret = new Document();
+        ret.put("id", this.id);
+        ret.put("name", this.name);
+        ret.put("tag", this.tag);
+        ret.put("cost", this.cost);
+        return ret;
+    }
 
     /*
      * equals() and hashCode()

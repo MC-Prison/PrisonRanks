@@ -23,8 +23,9 @@ import tech.mcprison.prison.internal.events.player.PlayerJoinEvent;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.ranks.events.FirstJoinEvent;
+import tech.mcprison.prison.store.Collection;
+import tech.mcprison.prison.store.Document;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,17 +40,15 @@ public class PlayerManager {
      * Fields & Constants
      */
 
-    public static final String PLAYER_EXTENSION = ".player.json";
-
-    private File playerFolder;
+    private Collection collection;
     private List<RankPlayer> players;
 
     /*
      * Constructor
      */
 
-    public PlayerManager(File playerFolder) {
-        this.playerFolder = playerFolder;
+    public PlayerManager(Collection collection) {
+        this.collection = collection;
         this.players = new ArrayList<>();
 
         Prison.get().getEventBus().register(this);
@@ -66,9 +65,8 @@ public class PlayerManager {
      * @throws IOException If the file could not be read, or if the file does not exist.
      */
     public void loadPlayer(String playerFile) throws IOException {
-        RankPlayer player =
-            Prison.get().getPlatform().getStorage().read(playerFile, RankPlayer.class);
-        players.add(player);
+        Document document = collection.get(playerFile).orElseThrow(IOException::new);
+        players.add(new RankPlayer(document));
     }
 
     /**
@@ -77,9 +75,8 @@ public class PlayerManager {
      * @throws IOException If one of the files could not be read, or if the playerFolder does not exist.
      */
     public void loadPlayers() throws IOException {
-        List<RankPlayer> players =
-            Prison.get().getPlatform().getStorage().readAll(RankPlayer.class);
-        this.players.addAll(players);
+        List<Document> players = collection.getAll();
+        players.forEach(document -> this.players.add(new RankPlayer(document)));
     }
 
     /**
@@ -91,7 +88,7 @@ public class PlayerManager {
      * @see #savePlayer(RankPlayer) To save with the default conventional filename.
      */
     public void savePlayer(RankPlayer player, String playerFile) throws IOException {
-        Prison.get().getPlatform().getStorage().write(playerFile, player);
+        collection.insert(playerFile, player.toDocument());
     }
 
     public void savePlayer(RankPlayer player) throws IOException {
@@ -113,10 +110,6 @@ public class PlayerManager {
     /*
      * Getters & Setters
      */
-
-    public File getPlayerFolder() {
-        return playerFolder;
-    }
 
     public List<RankPlayer> getPlayers() {
         return players;

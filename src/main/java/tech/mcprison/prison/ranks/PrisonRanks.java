@@ -24,6 +24,8 @@ import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.managers.LadderManager;
 import tech.mcprison.prison.ranks.managers.PlayerManager;
 import tech.mcprison.prison.ranks.managers.RankManager;
+import tech.mcprison.prison.store.Collection;
+import tech.mcprison.prison.store.Database;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +41,11 @@ public class PrisonRanks extends Module {
      */
 
     private static PrisonRanks instance;
-    private File ranksFolder, laddersFolder, playersFolder;
     private RankManager rankManager;
     private LadderManager ladderManager;
     private PlayerManager playerManager;
+
+    private Database database;
 
     /*
      * Constructor
@@ -63,11 +66,21 @@ public class PrisonRanks extends Module {
     @Override public void enable() {
         instance = this;
 
+        Optional<Database> databaseOptional = Prison.get().getPlatform().getStorage().getDatabase("ranksDb");
+        if(!databaseOptional.isPresent()) {
+            Prison.get().getPlatform().getStorage().createDatabase("ranks");
+            databaseOptional = Prison.get().getPlatform().getStorage().getDatabase("ranks");
+        }
+        this.database = databaseOptional.get();
+
         // Load up the ranks
 
-        ranksFolder = new File(getDataFolder(), "data");
-        ranksFolder.mkdir();
-        rankManager = new RankManager(ranksFolder);
+        Optional<Collection> collectionOptional = database.getCollection("ranks");
+        if(!collectionOptional.isPresent()) {
+            database.createCollection("ranks");
+            collectionOptional = database.getCollection("ranks");
+        }
+        rankManager = new RankManager(collectionOptional.get());
         try {
             rankManager.loadRanks();
         } catch (IOException e) {
@@ -76,9 +89,12 @@ public class PrisonRanks extends Module {
 
         // Load up the ladders
 
-        laddersFolder = new File(ranksFolder, "ladders");
-        laddersFolder.mkdir();
-        ladderManager = new LadderManager(laddersFolder);
+        collectionOptional = database.getCollection("ladders");
+        if(!collectionOptional.isPresent()) {
+            database.createCollection("ladders");
+            collectionOptional = database.getCollection("ladders");
+        }
+        ladderManager = new LadderManager(collectionOptional.get());
         try {
             ladderManager.loadLadders();
         } catch (IOException e) {
@@ -88,9 +104,12 @@ public class PrisonRanks extends Module {
 
         // Load up the players
 
-        playersFolder = new File(ranksFolder, "players");
-        playersFolder.mkdir();
-        playerManager = new PlayerManager(playersFolder);
+        collectionOptional = database.getCollection("players");
+        if(!collectionOptional.isPresent()) {
+            database.createCollection("players");
+            collectionOptional = database.getCollection("players");
+        }
+        playerManager = new PlayerManager(collectionOptional.get());
         try {
             playerManager.loadPlayers();
         } catch (IOException e) {
@@ -143,24 +162,12 @@ public class PrisonRanks extends Module {
         }
     }
 
-    public File getRanksFolder() {
-        return ranksFolder;
-    }
-
     public RankManager getRankManager() {
         return rankManager;
     }
 
-    public File getLaddersFolder() {
-        return laddersFolder;
-    }
-
     public LadderManager getLadderManager() {
         return ladderManager;
-    }
-
-    public File getPlayersFolder() {
-        return playersFolder;
     }
 
     public PlayerManager getPlayerManager() {
