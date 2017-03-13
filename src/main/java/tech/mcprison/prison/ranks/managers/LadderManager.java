@@ -17,15 +17,12 @@
 
 package tech.mcprison.prison.ranks.managers;
 
-import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.store.Collection;
 import tech.mcprison.prison.store.Document;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,7 +61,7 @@ public class LadderManager {
      * Loads a ladder from a file into the loaded ladders list.
      * After this method is called, the ladder will be ready for use in the server.
      *
-     * @param fileKey The keye that this ladder is stored as. This is case-sensitive.
+     * @param fileKey The key that this ladder is stored as. This is case-sensitive.
      * @throws IOException If the file could not be read or does not exist.
      */
     public void loadLadder(String fileKey) throws IOException {
@@ -129,7 +126,7 @@ public class LadderManager {
         RankLadder newLadder = new RankLadder();
         newLadder.id = getNextAvailableId();
         newLadder.name = name;
-        newLadder.ranks = new HashMap<>();
+        newLadder.ranks = new ArrayList<>();
 
         // ... add it to the list...
         loadedLadders.add(newLadder);

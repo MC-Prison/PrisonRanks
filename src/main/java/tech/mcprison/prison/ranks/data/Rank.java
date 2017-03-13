@@ -17,6 +17,7 @@
 
 package tech.mcprison.prison.ranks.data;
 
+import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
 /**
@@ -49,7 +50,7 @@ public class Rank {
     public Rank() {}
 
     public Rank(Document document) {
-        this.id = (int) document.get("id");
+        this.id = RankUtil.doubleToInt(document.get("id"));
         this.name = (String) document.get("name");
         this.tag = (String) document.get("tag");
         this.cost = (double) document.get("cost");

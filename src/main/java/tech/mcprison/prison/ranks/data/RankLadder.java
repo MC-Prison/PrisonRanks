@@ -17,10 +17,13 @@
 
 package tech.mcprison.prison.ranks.data;
 
+import com.google.gson.internal.LinkedTreeMap;
 import tech.mcprison.prison.ranks.PrisonRanks;
+import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,18 +41,26 @@ public class RankLadder {
 
     public int id;
     public String name;
-    public Map<Integer, Integer> ranks; // <Position, RankID>
+    public List<PositionRank> ranks;
 
     /*
      * Document-related
      */
 
-    public RankLadder() {}
+    public RankLadder() {
+    }
 
     public RankLadder(Document document) {
-        this.id = (int) document.get("id");
+        this.id = RankUtil.doubleToInt(document.get("id"));
         this.name = (String) document.get("name");
-        this.ranks = (Map<Integer, Integer>) document.get("ranks");
+        List<LinkedTreeMap<String, Object>> ranksLocal =
+            (List<LinkedTreeMap<String, Object>>) document.get("ranks");
+
+        this.ranks = new ArrayList<>();
+        for(LinkedTreeMap<String, Object> rank : ranksLocal) {
+            System.out.println(rank.toString());
+            ranks.add(new PositionRank(RankUtil.doubleToInt(rank.get("position")), RankUtil.doubleToInt((rank.get("rankId")))));
+        }
     }
 
     public Document toDocument() {
@@ -72,7 +83,7 @@ public class RankLadder {
      * @param rank     The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
-        ranks.put(position, rank.id);
+        ranks.add(new PositionRank(position, rank.id));
     }
 
     /**
@@ -81,7 +92,7 @@ public class RankLadder {
      * @param rank The {@link Rank} to add.
      */
     public void addRank(Rank rank) {
-        ranks.put(getNextAvailablePosition(), rank.id);
+        ranks.add(new PositionRank(getNextAvailablePosition(), rank.id));
     }
 
     /**
@@ -103,9 +114,9 @@ public class RankLadder {
         int i = position + 1;
 
         while (i <= ranks.size()) {
-            int rank = ranks.get(i);
+            int rank = ranks.get(i).getRankId();
             ranks.remove(i);
-            ranks.put(i - 1, rank);
+            ranks.add(new PositionRank(i - 1, rank));
             i++;
         }
 
@@ -122,7 +133,7 @@ public class RankLadder {
      * @return True if the rank was found, false otherwise.
      */
     public boolean containsRank(int rankId) {
-        return ranks.values().stream().anyMatch(rank -> rank == rankId);
+        return ranks.stream().anyMatch(rank -> rank.getRankId() == rankId);
     }
 
     /**
@@ -132,9 +143,9 @@ public class RankLadder {
      * @return The position of the rank, or -1 if the rank was not found.
      */
     public int getPositionOfRank(Rank rank) {
-        for (Map.Entry<Integer, Integer> rankEntry : ranks.entrySet()) {
-            if (rankEntry.getValue() == rank.id) {
-                return rankEntry.getKey();
+        for (PositionRank rankEntry : ranks) {
+            if (rankEntry.getRankId() == rank.id) {
+                return rankEntry.getPosition();
             }
         }
 
@@ -149,9 +160,9 @@ public class RankLadder {
      */
     public Optional<Rank> getNext(int oldPosition) {
 
-        for (Map.Entry<Integer, Integer> rankEntry : ranks.entrySet()) {
-            if (rankEntry.getKey() > oldPosition) {
-                return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getValue());
+        for (PositionRank rankEntry : ranks) {
+            if (rankEntry.getPosition() > oldPosition) {
+                return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getRankId());
             }
         }
 
@@ -161,8 +172,12 @@ public class RankLadder {
     public Optional<Rank> getPrevious(int oldPosition) {
 
         for (int position = oldPosition - 1; position >= 0; position--) {
-            if (ranks.containsKey(position)) {
-                return PrisonRanks.getInstance().getRankManager().getRank(ranks.get(position));
+            int finalPosition = position;
+            if (ranks.stream()
+                .anyMatch(positionRank -> positionRank.getPosition() == finalPosition)) {
+                return PrisonRanks.getInstance().getRankManager().getRank(ranks.stream()
+                    .filter(positionRank -> positionRank.getPosition() == finalPosition).findFirst()
+                    .get().getPosition());
             }
         }
 
@@ -177,9 +192,9 @@ public class RankLadder {
     private int getNextAvailablePosition() {
         int highest = 0;
 
-        for (int position : ranks.keySet()) {
-            if (position >= highest) {
-                highest = position;
+        for (PositionRank rank : ranks) {
+            if (rank.getPosition() >= highest) {
+                highest = rank.getPosition();
             }
         }
 
@@ -210,6 +225,32 @@ public class RankLadder {
         int result = id;
         result = 31 * result + name.hashCode();
         return result;
+    }
+
+    class PositionRank {
+        private int position;
+        private int rankId;
+
+        public PositionRank(int position, int rankId) {
+            this.position = position;
+            this.rankId = rankId;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public void setPosition(int position) {
+            this.position = position;
+        }
+
+        public int getRankId() {
+            return rankId;
+        }
+
+        public void setRankId(int rankId) {
+            this.rankId = rankId;
+        }
     }
 
 }

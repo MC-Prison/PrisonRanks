@@ -104,6 +104,10 @@ public class RankUtil {
         return NumberFormat.getCurrencyInstance().format(val);
     }
 
+    public static int doubleToInt(Object d) {
+        return Math.toIntExact(Math.round((double) d));
+    }
+
     /*
      * Member Classes
      */
