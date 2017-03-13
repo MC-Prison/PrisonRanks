@@ -19,6 +19,7 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.modules.Module;
+import tech.mcprison.prison.modules.ModuleStatus;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.managers.LadderManager;
@@ -65,6 +66,12 @@ public class PrisonRanks extends Module {
 
     @Override public void enable() {
         instance = this;
+
+        if(Prison.get().getPlatform().getEconomy() == null) {
+            getStatus().setStatus(ModuleStatus.Status.FAILED);
+            getStatus().setMessage("no economy plugin");
+            return;
+        }
 
         Optional<Database> databaseOptional = Prison.get().getPlatform().getStorage().getDatabase("ranksDb");
         if(!databaseOptional.isPresent()) {
