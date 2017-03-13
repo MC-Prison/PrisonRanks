@@ -58,7 +58,6 @@ public class RankLadder {
 
         this.ranks = new ArrayList<>();
         for(LinkedTreeMap<String, Object> rank : ranksLocal) {
-            System.out.println(rank.toString());
             ranks.add(new PositionRank(RankUtil.doubleToInt(rank.get("position")), RankUtil.doubleToInt((rank.get("rankId")))));
         }
     }
@@ -162,6 +161,7 @@ public class RankLadder {
 
         for (PositionRank rankEntry : ranks) {
             if (rankEntry.getPosition() > oldPosition) {
+                System.out.println(rankEntry.getPosition() + " - " + rankEntry.getRankId());
                 return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getRankId());
             }
         }
