@@ -43,7 +43,7 @@ public class Commands {
      */
 
     @Command(identifier = "rankup", description = "Ranks up to the next rank.", permissions = {
-        "ranks.rankup"}) public void rankUp(Player sender,
+        "ranks.user", "ranks.admin"}) public void rankUp(Player sender,
         @Arg(name = "ladder", description = "The ladder to rank up on.", def = "default")
             String ladderName) {
 
@@ -108,12 +108,21 @@ public class Commands {
 
     }
 
+    @Command(identifier = "ranks", onlyPlayers = false, permissions = {"ranks.user", "ranks.admin"})
+    public void baseCommand(CommandSender sender) {
+        if(!sender.hasPermission("ranks.admin")) {
+            sender.dispatchCommand("ranks list");
+        } else {
+            sender.dispatchCommand("ranks help");
+        }
+    }
+
     /*
      * /rank command
      */
 
-    @Command(identifier = "rank create", description = "Creates a new rank", onlyPlayers = false, permissions = {
-        "ranks.manage"}) public void createRank(CommandSender sender,
+    @Command(identifier = "ranks create", description = "Creates a new rank", onlyPlayers = false, permissions = {
+        "ranks.admin"}) public void createRank(CommandSender sender,
         @Arg(name = "name", description = "The name of this rank.") String name,
         @Arg(name = "cost", description = "The cost of this rank.") double cost,
         @Arg(name = "ladder", description = "The ladder to put this rank on.", def = "default")
@@ -181,8 +190,8 @@ public class Commands {
 
     }
 
-    @Command(identifier = "rank list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
-        "ranks.manage"}) public void listRanks(CommandSender sender) {
+    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {"ranks.user",
+        "ranks.admin"}) public void listRanks(CommandSender sender) {
         for (Rank rank : PrisonRanks.getInstance().getRankManager().getRanks()) {
 
             List<String> ladders = new ArrayList<>();

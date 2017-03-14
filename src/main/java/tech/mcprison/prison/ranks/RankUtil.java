@@ -24,6 +24,7 @@ import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.data.RankPlayer;
+import tech.mcprison.prison.ranks.events.RankUpEvent;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -97,6 +98,7 @@ public class RankUtil {
             return new RankUpResult(RANKUP_FAILURE, null);
         }
 
+        Prison.get().getEventBus().post(new RankUpEvent(player, currentRank, nextRank, nextRank.cost));
         return new RankUpResult(RANKUP_SUCCESS, nextRank);
     }
 
