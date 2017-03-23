@@ -206,4 +206,52 @@ public class Commands {
         }
     }
 
+    @Command(identifier = "ranks command add", description = "Adds a command to a rank.", onlyPlayers = false, permissions = {"ranks.admin"})
+    public void commandAdd(CommandSender sender, @Arg(name="rank") String rankName, @Arg(name="command") String command) {
+        if(command.startsWith("/")) {
+            command = command.replaceFirst("/", "");
+        }
+
+        Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if(!rankOptional.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
+            return;
+        }
+        Rank rank = rankOptional.get();
+
+        if(rank.rankUpCommands == null) {
+            rank.rankUpCommands = new ArrayList<>();
+        }
+        rank.rankUpCommands.add(command);
+
+        Output.get().sendInfo(sender, "Added command '%s' to the rank '%s'.", command, rank.name);
+
+    }
+
+    @Command(identifier = "ranks command remove", description = "Removes a command from a rank.", onlyPlayers = false, permissions = {"ranks.admin"})
+    public void commandRemove(CommandSender sender, @Arg(name="rank") String rankName, @Arg(name="command") String command) {
+        if(command.startsWith("/")) {
+            command = command.replaceFirst("/", "");
+        }
+
+        Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if(!rankOptional.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
+            return;
+        }
+        Rank rank = rankOptional.get();
+
+        if(rank.rankUpCommands == null) {
+            rank.rankUpCommands = new ArrayList<>();
+        }
+        boolean did = rank.rankUpCommands.remove(command);
+
+        if(!did) {
+            Output.get().sendWarn(sender, "The rank doesn't contain that command. Nothing was changed.");
+        } else {
+            Output.get().sendInfo(sender, "Removed command '%s' from the rank '%s'.", command, rank.name);
+        }
+
+    }
+
 }
