@@ -182,4 +182,8 @@ public class PrisonRanks extends Module {
         return getLadderManager().getLadder("default").orElseThrow(IllegalStateException::new);
     }
 
+    public Database getDatabase() {
+        return database;
+    }
+
 }

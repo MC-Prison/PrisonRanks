@@ -98,6 +98,13 @@ public class RankUtil {
             return new RankUpResult(RANKUP_FAILURE, null);
         }
 
+        // Now, we'll run the rank up commands.
+
+        for(String cmd : nextRank.rankUpCommands) {
+            String formatted = cmd.replace("{player}", prisonPlayer.getName()).replace("{player_uid}", player.uid.toString());
+            Prison.get().getPlatform().dispatchCommand(formatted);
+        }
+
         Prison.get().getEventBus().post(new RankUpEvent(player, currentRank, nextRank, nextRank.cost));
         return new RankUpResult(RANKUP_SUCCESS, nextRank);
     }

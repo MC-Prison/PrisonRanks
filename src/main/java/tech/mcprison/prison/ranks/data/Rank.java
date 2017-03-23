@@ -20,6 +20,8 @@ package tech.mcprison.prison.ranks.data;
 import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
+import java.util.List;
+
 /**
  * Represents a single rank.
  *
@@ -43,6 +45,9 @@ public class Rank {
     // The general cost of this rank, unit-independent. This value holds true for both XP and cost.
     public double cost;
 
+    // The commands that are run when this rank is attained.
+    public List<String> rankUpCommands;
+
     /*
      * Document-related
      */
@@ -54,6 +59,7 @@ public class Rank {
         this.name = (String) document.get("name");
         this.tag = (String) document.get("tag");
         this.cost = (double) document.get("cost");
+        this.rankUpCommands = (List<String>) document.get("commands");
     }
 
     public Document toDocument() {
@@ -62,6 +68,7 @@ public class Rank {
         ret.put("name", this.name);
         ret.put("tag", this.tag);
         ret.put("cost", this.cost);
+        ret.put("commands", this.rankUpCommands);
         return ret;
     }
 
