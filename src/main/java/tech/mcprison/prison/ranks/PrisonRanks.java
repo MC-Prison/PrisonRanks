@@ -28,7 +28,6 @@ import tech.mcprison.prison.ranks.managers.RankManager;
 import tech.mcprison.prison.store.Collection;
 import tech.mcprison.prison.store.Database;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -67,14 +66,15 @@ public class PrisonRanks extends Module {
     @Override public void enable() {
         instance = this;
 
-        if(Prison.get().getPlatform().getEconomy() == null) {
+        if (Prison.get().getPlatform().getEconomy() == null) {
             getStatus().setStatus(ModuleStatus.Status.FAILED);
             getStatus().setMessage("no economy plugin");
             return;
         }
 
-        Optional<Database> databaseOptional = Prison.get().getPlatform().getStorage().getDatabase("ranksDb");
-        if(!databaseOptional.isPresent()) {
+        Optional<Database> databaseOptional =
+            Prison.get().getPlatform().getStorage().getDatabase("ranksDb");
+        if (!databaseOptional.isPresent()) {
             Prison.get().getPlatform().getStorage().createDatabase("ranks");
             databaseOptional = Prison.get().getPlatform().getStorage().getDatabase("ranks");
         }
@@ -82,12 +82,7 @@ public class PrisonRanks extends Module {
 
         // Load up the ranks
 
-        Optional<Collection> collectionOptional = database.getCollection("ranks");
-        if(!collectionOptional.isPresent()) {
-            database.createCollection("ranks");
-            collectionOptional = database.getCollection("ranks");
-        }
-        rankManager = new RankManager(collectionOptional.get());
+        rankManager = new RankManager(initCollection("ranks"));
         try {
             rankManager.loadRanks();
         } catch (IOException e) {
@@ -96,12 +91,8 @@ public class PrisonRanks extends Module {
 
         // Load up the ladders
 
-        collectionOptional = database.getCollection("ladders");
-        if(!collectionOptional.isPresent()) {
-            database.createCollection("ladders");
-            collectionOptional = database.getCollection("ladders");
-        }
-        ladderManager = new LadderManager(collectionOptional.get());
+
+        ladderManager = new LadderManager(initCollection("ladders"));
         try {
             ladderManager.loadLadders();
         } catch (IOException e) {
@@ -111,12 +102,8 @@ public class PrisonRanks extends Module {
 
         // Load up the players
 
-        collectionOptional = database.getCollection("players");
-        if(!collectionOptional.isPresent()) {
-            database.createCollection("players");
-            collectionOptional = database.getCollection("players");
-        }
-        playerManager = new PlayerManager(collectionOptional.get());
+
+        playerManager = new PlayerManager(initCollection("players"));
         try {
             playerManager.loadPlayers();
         } catch (IOException e) {
@@ -131,6 +118,16 @@ public class PrisonRanks extends Module {
 
         new FirstJoinHandler();
 
+    }
+
+    private Collection initCollection(String collName) {
+        Optional<Collection> collectionOptional = database.getCollection(collName);
+        if (!collectionOptional.isPresent()) {
+            database.createCollection(collName);
+            collectionOptional = database.getCollection(collName);
+        }
+
+        return collectionOptional.orElseThrow(RuntimeException::new);
     }
 
     /**
