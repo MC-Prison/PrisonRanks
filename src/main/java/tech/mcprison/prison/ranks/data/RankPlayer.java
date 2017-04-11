@@ -22,7 +22,10 @@ import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Represents a player with ranks.
@@ -42,7 +45,8 @@ public class RankPlayer {
      * Document-related
      */
 
-    public RankPlayer() {}
+    public RankPlayer() {
+    }
 
     public RankPlayer(Document document) {
         this.uid = UUID.fromString((String) document.get("uid"));
@@ -50,7 +54,7 @@ public class RankPlayer {
             (LinkedTreeMap<String, Object>) document.get("ranks");
 
         this.ranks = new HashMap<>();
-        for(String key : ranksLocal.keySet()) {
+        for (String key : ranksLocal.keySet()) {
             ranks.put(key, RankUtil.doubleToInt(ranksLocal.get(key)));
         }
     }

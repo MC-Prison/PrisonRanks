@@ -110,7 +110,7 @@ public class Commands {
 
     @Command(identifier = "ranks", onlyPlayers = false, permissions = {"ranks.user", "ranks.admin"})
     public void baseCommand(CommandSender sender) {
-        if(!sender.hasPermission("ranks.admin")) {
+        if (!sender.hasPermission("ranks.admin")) {
             sender.dispatchCommand("ranks list");
         } else {
             sender.dispatchCommand("ranks help");
@@ -190,8 +190,8 @@ public class Commands {
 
     }
 
-    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {"ranks.user",
-        "ranks.admin"}) public void listRanks(CommandSender sender) {
+    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
+        "ranks.user", "ranks.admin"}) public void listRanks(CommandSender sender) {
         for (Rank rank : PrisonRanks.getInstance().getRankManager().getRanks()) {
 
             List<String> ladders = new ArrayList<>();
@@ -206,20 +206,22 @@ public class Commands {
         }
     }
 
-    @Command(identifier = "ranks command add", description = "Adds a command to a rank.", onlyPlayers = false, permissions = {"ranks.admin"})
-    public void commandAdd(CommandSender sender, @Arg(name="rank") String rankName, @Arg(name="command") String command) {
-        if(command.startsWith("/")) {
+    @Command(identifier = "ranks command add", description = "Adds a command to a rank.", onlyPlayers = false, permissions = {
+        "ranks.admin"})
+    public void commandAdd(CommandSender sender, @Arg(name = "rank") String rankName,
+        @Arg(name = "command") String command) {
+        if (command.startsWith("/")) {
             command = command.replaceFirst("/", "");
         }
 
         Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
-        if(!rankOptional.isPresent()) {
+        if (!rankOptional.isPresent()) {
             Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
             return;
         }
         Rank rank = rankOptional.get();
 
-        if(rank.rankUpCommands == null) {
+        if (rank.rankUpCommands == null) {
             rank.rankUpCommands = new ArrayList<>();
         }
         rank.rankUpCommands.add(command);
@@ -228,28 +230,32 @@ public class Commands {
 
     }
 
-    @Command(identifier = "ranks command remove", description = "Removes a command from a rank.", onlyPlayers = false, permissions = {"ranks.admin"})
-    public void commandRemove(CommandSender sender, @Arg(name="rank") String rankName, @Arg(name="command") String command) {
-        if(command.startsWith("/")) {
+    @Command(identifier = "ranks command remove", description = "Removes a command from a rank.", onlyPlayers = false, permissions = {
+        "ranks.admin"})
+    public void commandRemove(CommandSender sender, @Arg(name = "rank") String rankName,
+        @Arg(name = "command") String command) {
+        if (command.startsWith("/")) {
             command = command.replaceFirst("/", "");
         }
 
         Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
-        if(!rankOptional.isPresent()) {
+        if (!rankOptional.isPresent()) {
             Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
             return;
         }
         Rank rank = rankOptional.get();
 
-        if(rank.rankUpCommands == null) {
+        if (rank.rankUpCommands == null) {
             rank.rankUpCommands = new ArrayList<>();
         }
         boolean did = rank.rankUpCommands.remove(command);
 
-        if(!did) {
-            Output.get().sendWarn(sender, "The rank doesn't contain that command. Nothing was changed.");
+        if (!did) {
+            Output.get()
+                .sendWarn(sender, "The rank doesn't contain that command. Nothing was changed.");
         } else {
-            Output.get().sendInfo(sender, "Removed command '%s' from the rank '%s'.", command, rank.name);
+            Output.get()
+                .sendInfo(sender, "Removed command '%s' from the rank '%s'.", command, rank.name);
         }
 
     }

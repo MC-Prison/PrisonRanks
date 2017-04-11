@@ -18,6 +18,7 @@
 package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
+import tech.mcprison.prison.PrisonAPI;
 import tech.mcprison.prison.economy.Economy;
 import tech.mcprison.prison.internal.Player;
 import tech.mcprison.prison.output.Output;
@@ -66,7 +67,7 @@ public class RankUtil {
         // Store all of the data we need. If anything here is not present, there
         // is a high chance of data corruption. TODO Fail gracefully here
 
-        Player prisonPlayer = Prison.get().getPlatform().getPlayer(player.uid).get();
+        Player prisonPlayer = PrisonAPI.getPlayer(player.uid).get();
         RankLadder ladder =
             PrisonRanks.getInstance().getLadderManager().getLadder(ladderName).get();
         Rank currentRank = player.getRank(ladder).get(); // TODO Add them to the lowest rank
@@ -82,7 +83,7 @@ public class RankUtil {
         // We're going to be making a transaction here
         // We'll check if the player can afford it first, and if so, we'll make the transaction and proceed.
 
-        Economy economy = Prison.get().getPlatform().getEconomy();
+        Economy economy = PrisonAPI.getEconomy();
         if (!economy.canAfford(prisonPlayer, nextRank.cost)) {
             return new RankUpResult(RANKUP_CANT_AFFORD, nextRank);
         }
@@ -100,12 +101,14 @@ public class RankUtil {
 
         // Now, we'll run the rank up commands.
 
-        for(String cmd : nextRank.rankUpCommands) {
-            String formatted = cmd.replace("{player}", prisonPlayer.getName()).replace("{player_uid}", player.uid.toString());
-            Prison.get().getPlatform().dispatchCommand(formatted);
+        for (String cmd : nextRank.rankUpCommands) {
+            String formatted = cmd.replace("{player}", prisonPlayer.getName())
+                .replace("{player_uid}", player.uid.toString());
+            PrisonAPI.dispatchCommand(formatted);
         }
 
-        Prison.get().getEventBus().post(new RankUpEvent(player, currentRank, nextRank, nextRank.cost));
+        Prison.get().getEventBus()
+            .post(new RankUpEvent(player, currentRank, nextRank, nextRank.cost));
         return new RankUpResult(RANKUP_SUCCESS, nextRank);
     }
 

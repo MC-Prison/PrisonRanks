@@ -52,7 +52,8 @@ public class Rank {
      * Document-related
      */
 
-    public Rank() {}
+    public Rank() {
+    }
 
     public Rank(Document document) {
         this.id = RankUtil.doubleToInt(document.get("id"));

@@ -5,6 +5,7 @@ import tech.mcprison.prison.ranks.data.RankPlayer;
 
 /**
  * An event that fires when a player ranks up.
+ *
  * @author Faizaan A. Datoo
  */
 public class RankUpEvent {

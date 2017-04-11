@@ -17,13 +17,11 @@
 
 package tech.mcprison.prison.ranks.managers;
 
-import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.store.Collection;
 import tech.mcprison.prison.store.Document;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

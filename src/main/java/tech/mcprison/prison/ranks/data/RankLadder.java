@@ -57,8 +57,9 @@ public class RankLadder {
             (List<LinkedTreeMap<String, Object>>) document.get("ranks");
 
         this.ranks = new ArrayList<>();
-        for(LinkedTreeMap<String, Object> rank : ranksLocal) {
-            ranks.add(new PositionRank(RankUtil.doubleToInt(rank.get("position")), RankUtil.doubleToInt((rank.get("rankId")))));
+        for (LinkedTreeMap<String, Object> rank : ranksLocal) {
+            ranks.add(new PositionRank(RankUtil.doubleToInt(rank.get("position")),
+                RankUtil.doubleToInt((rank.get("rankId")))));
         }
     }
 
