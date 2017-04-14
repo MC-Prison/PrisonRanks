@@ -117,6 +117,7 @@ public class PrisonRanks extends Module {
         // Load up all else
 
         new FirstJoinHandler();
+        new ChatHandler();
 
     }
 

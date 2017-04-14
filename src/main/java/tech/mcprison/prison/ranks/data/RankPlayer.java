@@ -127,6 +127,32 @@ public class RankPlayer {
         return PrisonRanks.getInstance().getRankManager().getRank(id);
     }
 
+    /**
+     * Returns all ladders this player is a part of, along with each rank the player has in that ladder.
+     *
+     * @return The map containing this data.
+     */
+    public Map<RankLadder, Rank> getRanks() {
+        Map<RankLadder, Rank> ret = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : ranks.entrySet()) {
+            Optional<RankLadder> ladder =
+                PrisonRanks.getInstance().getLadderManager().getLadder(entry.getKey());
+            if (!ladder.isPresent()) {
+                continue; // Skip it
+            }
+
+            Optional<Rank> rank =
+                PrisonRanks.getInstance().getRankManager().getRank(entry.getValue());
+            if (!rank.isPresent()) {
+                continue; // Skip it
+            }
+
+            ret.put(ladder.get(), rank.get());
+        }
+
+        return ret;
+    }
+
     /*
      * equals() and hashCode()
      */
