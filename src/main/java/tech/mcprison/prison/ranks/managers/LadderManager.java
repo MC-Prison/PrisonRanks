@@ -17,7 +17,9 @@
 
 package tech.mcprison.prison.ranks.managers;
 
+import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.RankLadder;
+import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.store.Collection;
 import tech.mcprison.prison.store.Document;
 
@@ -167,9 +169,14 @@ public class LadderManager {
         // Remove it from the list...
         loadedLadders.remove(ladder);
 
-        // ... TODO Remove the ranks from the ladder ...
-
-        // ... TODO Handle affected players ...
+        // Remove the players from the ladder
+        List<RankPlayer> playersWithLadder =
+            PrisonRanks.getInstance().getPlayerManager().getPlayers().stream()
+                .filter(rankPlayer -> rankPlayer.ranks.containsKey(ladder.name))
+                .collect(Collectors.toList());
+        for (RankPlayer player : playersWithLadder) {
+            player.removeLadder(ladder.name);
+        }
 
         // ... and remove the ladder's save files.
         collection.remove("ladder_" + ladder.id);

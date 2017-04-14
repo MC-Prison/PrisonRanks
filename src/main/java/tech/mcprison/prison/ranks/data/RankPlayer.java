@@ -18,6 +18,7 @@
 package tech.mcprison.prison.ranks.data;
 
 import com.google.gson.internal.LinkedTreeMap;
+import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
@@ -112,6 +113,17 @@ public class RankPlayer {
         ranks.remove(ladderName);
     }
 
+    /**
+     * Removes a ladder from this player, including whichever rank this player had in it.
+     * The player will then be added to the lowest rank on the default ladder.
+     *
+     * @param ladderName The ladder's name.
+     */
+    public void removeLadder(String ladderName) {
+        ranks.remove(ladderName);
+        addRank(PrisonRanks.getInstance().getDefaultLadder(), PrisonRanks.getInstance().getDefaultLadder().getByPosition(1).get());
+    }
+
     /*
      * Getters & Setters
      */
@@ -123,6 +135,9 @@ public class RankPlayer {
      * @return An optional containing the {@link Rank} if found, or empty if there isn't a rank by that ladder for this player.
      */
     public Optional<Rank> getRank(RankLadder ladder) {
+        if(!ranks.containsKey(ladder.name)) {
+            return Optional.empty();
+        }
         int id = ranks.get(ladder.name);
         return PrisonRanks.getInstance().getRankManager().getRank(id);
     }

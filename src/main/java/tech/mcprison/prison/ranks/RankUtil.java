@@ -70,15 +70,25 @@ public class RankUtil {
         Player prisonPlayer = PrisonAPI.getPlayer(player.uid).get();
         RankLadder ladder =
             PrisonRanks.getInstance().getLadderManager().getLadder(ladderName).get();
-        Rank currentRank = player.getRank(ladder).get(); // TODO Add them to the lowest rank
-        Optional<Rank> nextRankOptional = ladder.getNext(ladder.getPositionOfRank(currentRank));
 
-        if (!nextRankOptional.isPresent()) {
-            return new RankUpResult(RANKUP_HIGHEST,
-                currentRank); // We're already at the highest rank.
+        Optional<Rank> currentRankOptional = player.getRank(ladder);
+        Rank nextRank;
+
+        if (!currentRankOptional.isPresent()) {
+            Optional<Rank> lowestRank = ladder.getByPosition(1);
+            nextRank = lowestRank
+                .get(); // TODO check if exists, or else default rank in default ladder (to be created)
+        } else {
+            Optional<Rank> nextRankOptional =
+                ladder.getNext(ladder.getPositionOfRank(currentRankOptional.get()));
+
+            if (!nextRankOptional.isPresent()) {
+                return new RankUpResult(RANKUP_HIGHEST,
+                    currentRankOptional.get()); // We're already at the highest rank.
+            }
+
+            nextRank = nextRankOptional.get();
         }
-
-        Rank nextRank = nextRankOptional.get();
 
         // We're going to be making a transaction here
         // We'll check if the player can afford it first, and if so, we'll make the transaction and proceed.
@@ -107,8 +117,8 @@ public class RankUtil {
             PrisonAPI.dispatchCommand(formatted);
         }
 
-        Prison.get().getEventBus()
-            .post(new RankUpEvent(player, currentRank, nextRank, nextRank.cost));
+        Prison.get().getEventBus().post(
+            new RankUpEvent(player, currentRankOptional.orElse(null), nextRank, nextRank.cost));
         return new RankUpResult(RANKUP_SUCCESS, nextRank);
     }
 

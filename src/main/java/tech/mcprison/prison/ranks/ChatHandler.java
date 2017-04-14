@@ -32,8 +32,6 @@ public class ChatHandler {
      */
 
     @Subscribe public void onPlayerChat(PlayerChatEvent e) {
-        PrisonAPI.debug(e.getFormat());
-
         Optional<RankPlayer> player =
             PrisonRanks.getInstance().getPlayerManager().getPlayer(e.getPlayer().getUUID());
         String prefix = "";

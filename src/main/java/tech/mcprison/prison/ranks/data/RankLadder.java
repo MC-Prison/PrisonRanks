@@ -247,7 +247,7 @@ public class RankLadder {
         return result;
     }
 
-    class PositionRank {
+    public class PositionRank {
         private int position;
         private int rankId;
 

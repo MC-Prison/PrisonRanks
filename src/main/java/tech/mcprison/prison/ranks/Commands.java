@@ -21,6 +21,8 @@ import tech.mcprison.prison.commands.Arg;
 import tech.mcprison.prison.commands.Command;
 import tech.mcprison.prison.internal.CommandSender;
 import tech.mcprison.prison.internal.Player;
+import tech.mcprison.prison.output.BulletedListComponent;
+import tech.mcprison.prison.output.ChatDisplay;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
@@ -280,6 +282,69 @@ public class Commands {
                 .sendInfo(sender, "Removed command '%s' from the rank '%s'.", command, rank.name);
         }
 
+    }
+
+    @Command(identifier = "ranks ladder add", description = "Creates a new rank ladder.", onlyPlayers = false, permissions = {
+        "ranks.admin"})
+    public void ladderAdd(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
+        Optional<RankLadder> ladderOptional =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+        if (ladderOptional.isPresent()) {
+            Output.get()
+                .sendError(sender, "A ladder with the name '%s' already exists.", ladderName);
+            return;
+        }
+
+        ladderOptional = PrisonRanks.getInstance().getLadderManager().createLadder("ladderName");
+
+        if (!ladderOptional.isPresent()) {
+            Output.get().sendError(sender,
+                "An error occurred while creating your ladder. &8Check the console for details.");
+            return;
+        }
+
+        try {
+            PrisonRanks.getInstance().getLadderManager().saveLadder(ladderOptional.get());
+        } catch (IOException e) {
+            Output.get().sendError(sender,
+                "An error occurred while creating your ladder. &8Check the console for details.");
+            Output.get().logError("Could not save ladder.", e);
+            return;
+        }
+
+        Output.get().sendInfo(sender, "The ladder '%s' has been created.", ladderName);
+    }
+
+    @Command(identifier = "ranks ladder remove", description = "Deletes a rank ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    public void ladderRemove(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
+        Optional<RankLadder> ladder =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+
+        if (!ladder.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' doesn't exist.", ladderName);
+            return;
+        }
+
+        boolean success = PrisonRanks.getInstance().getLadderManager().removeLadder(ladder.get());
+        if (success) {
+            Output.get().sendInfo(sender, "The ladder '%s' has been deleted.", ladderName);
+        } else {
+            Output.get().sendError(sender,
+                "An error occurred while removing your ladder. &8Check the console for details.");
+        }
+    }
+
+    @Command(identifier = "ranks ladder list", description = "Lists all rank ladders.", onlyPlayers = false, permissions = "ranks.admin")
+    public void ladderList(CommandSender sender) {
+        ChatDisplay display = new ChatDisplay("Ladders");
+        BulletedListComponent.BulletedListBuilder list =
+            new BulletedListComponent.BulletedListBuilder();
+        for (RankLadder ladder : PrisonRanks.getInstance().getLadderManager().getLadders()) {
+            list.add(ladder.name);
+        }
+        display.addComponent(list.build());
+
+        display.send(sender);
     }
 
 }
