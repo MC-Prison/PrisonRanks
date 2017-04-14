@@ -83,6 +83,9 @@ public class RankLadder {
      * @param rank     The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
+        for(int i = 0; i >= position && i < ranks.size(); i++) {
+            ranks.get(i).setPosition(ranks.get(i).getPosition() + 1); // Move everything one up to make room
+        }
         ranks.add(new PositionRank(position, rank.id));
     }
 
@@ -180,6 +183,21 @@ public class RankLadder {
                 return PrisonRanks.getInstance().getRankManager().getRank(ranks.stream()
                     .filter(positionRank -> positionRank.getPosition() == finalPosition).findFirst()
                     .get().getPosition());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Searches for and returns a rank in the ladder, depending on the position in the ladder.
+     * @param position The position to search for.
+     * @return An optional containing the rank if it was found, or empty if it wasn't.
+     */
+    public Optional<Rank> getByPosition(int position) {
+        for(PositionRank posRank : ranks) {
+            if(posRank.getPosition() == position) {
+                return PrisonRanks.getInstance().getRankManager().getRank(posRank.getRankId());
             }
         }
 

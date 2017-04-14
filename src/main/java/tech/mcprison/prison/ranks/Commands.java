@@ -190,6 +190,28 @@ public class Commands {
 
     }
 
+    @Command(identifier = "ranks remove", description = "Removes a rank, and deletes its files.", onlyPlayers = false, permissions = {
+        "ranks.admin"})
+    public void removeRank(CommandSender sender, @Arg(name = "name") String rankName) {
+        // Check to ensure the rank exists
+        Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if (!rankOptional.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
+            return;
+        }
+
+        Rank rank = rankOptional.get();
+
+        boolean success = PrisonRanks.getInstance().getRankManager().removeRank(rank);
+
+        if (success) {
+            Output.get().sendInfo(sender, "The rank '%s' has been removed successfully.", rankName);
+        } else {
+            Output.get()
+                .sendError(sender, "The rank '%s' could not be deleted due to an error.", rankName);
+        }
+    }
+
     @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
         "ranks.user", "ranks.admin"}) public void listRanks(CommandSender sender) {
         for (Rank rank : PrisonRanks.getInstance().getRankManager().getRanks()) {

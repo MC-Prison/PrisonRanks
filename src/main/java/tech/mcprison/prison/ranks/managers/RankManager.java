@@ -17,8 +17,12 @@
 
 package tech.mcprison.prison.ranks.managers;
 
+import tech.mcprison.prison.Prison;
+import tech.mcprison.prison.PrisonAPI;
+import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.Rank;
+import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.store.Collection;
 import tech.mcprison.prison.store.Document;
 
@@ -129,6 +133,7 @@ public class RankManager {
         newRank.name = name;
         newRank.tag = tag;
         newRank.cost = cost;
+        newRank.rankUpCommands = new ArrayList<>();
 
         // ... add it to the list...
         loadedRanks.add(newRank);
@@ -158,6 +163,16 @@ public class RankManager {
     }
 
     /**
+     * Returns the rank with the specified name.
+     *
+     * @param name The rank's name, case-sensitive.
+     * @return An optional containing either the {@link Rank} if it could be found, or empty if it does not exist by the specified name.
+     */
+    public Optional<Rank> getRank(String name) {
+        return loadedRanks.stream().filter(rank -> rank.name.equals(name)).findFirst();
+    }
+
+    /**
      * Removes the provided rank. This will go through the process of removing the rank from the loaded
      * ranks list, removing the rank's save files, adjusting the ladder positions that this rank is a part of,
      * and finally, moving the players back to the previous rank of their ladder. This is a potentially destructive
@@ -167,28 +182,46 @@ public class RankManager {
      * @return true if the rank was removed successfully, false otherwise.
      */
     public boolean removeRank(Rank rank) {
-        // Remove it from the list...
-        loadedRanks.remove(rank);
+
+
+        // ... remove it from each user, bumping them down to the next lowest rank...
+        for (RankLadder ladder : PrisonRanks.getInstance().getLadderManager()
+            .getLaddersWithRank(rank.id)) {
+            int next =
+                Math.max(1, ladder.getPositionOfRank(rank) - 1); // either one less, or the bottom
+
+            Optional<Rank> newRank = ladder.getByPosition(next);
+            if(!newRank.isPresent()) {
+                // TODO Do something here ... default rank!
+                return false;
+            }
+
+            // Move each player in this ladder to the new rank
+            PrisonRanks.getInstance().getPlayerManager().getPlayers().forEach(rankPlayer -> {
+                if(rankPlayer.getRank(ladder).isPresent()) {
+                    rankPlayer.removeRank(rankPlayer.getRank(ladder).get());
+                    rankPlayer.addRank(ladder, newRank.get());
+                    try {
+                        PrisonRanks.getInstance().getPlayerManager().savePlayer(rankPlayer);
+                    } catch (IOException e) {
+                        Output.get().logError("Couldn't save player file.", e);
+                    }
+                    PrisonAPI.debug("Player %s is now %s", rankPlayer.uid.getLeastSignificantBits(),
+                        newRank.get().name);
+                }
+            });
+        }
 
         // ... remove it from each ladder it was in...
         PrisonRanks.getInstance().getLadderManager().getLaddersWithRank(rank.id)
-            .forEach(rankLadder -> rankLadder.removeRank(rankLadder.getPositionOfRank(rank)));
+            .forEach(rankLadder -> rankLadder.removeRank(rankLadder.getPositionOfRank(rank) - 1));
 
-        // ... TODO move players to the previous rank...
+        // Remove it from the list...
+        loadedRanks.remove(rank);
 
         // ... and remove the rank's save files.
         collection.remove("rank_" + rank.id);
         return true;
-    }
-
-    /**
-     * Returns the rank with the specified name.
-     *
-     * @param name The rank's name, case-sensitive.
-     * @return An optional containing either the {@link Rank} if it could be found, or empty if it does not exist by the specified name.
-     */
-    public Optional<Rank> getRank(String name) {
-        return loadedRanks.stream().filter(rank -> rank.name.equals(name)).findFirst();
     }
 
     /**
