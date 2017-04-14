@@ -43,7 +43,7 @@ public class RankUtil {
      */
 
     public static final int RANKUP_SUCCESS = 0, RANKUP_FAILURE = 1, RANKUP_HIGHEST = 2,
-        RANKUP_CANT_AFFORD = 3;
+        RANKUP_CANT_AFFORD = 3, RANKUP_NO_RANKS = 4;
 
     /*
      * Constructor
@@ -76,8 +76,10 @@ public class RankUtil {
 
         if (!currentRankOptional.isPresent()) {
             Optional<Rank> lowestRank = ladder.getByPosition(1);
-            nextRank = lowestRank
-                .get(); // TODO check if exists, or else default rank in default ladder (to be created)
+            if(!lowestRank.isPresent()) {
+                return new RankUpResult(RANKUP_NO_RANKS, null);
+            }
+            nextRank = lowestRank.get();
         } else {
             Optional<Rank> nextRankOptional =
                 ladder.getNext(ladder.getPositionOfRank(currentRankOptional.get()));

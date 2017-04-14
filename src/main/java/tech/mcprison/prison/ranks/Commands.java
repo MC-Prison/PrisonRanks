@@ -103,8 +103,11 @@ public class Commands {
                 Output.get().sendInfo(sender, "You are already at the highest rank!");
                 break;
             case RankUtil.RANKUP_FAILURE:
-                Output.get().sendInfo(sender,
+                Output.get().sendError(sender,
                     "Failed to retrieve or write data. Your files may be corrupted. Alert a server administrator.");
+                break;
+            case RankUtil.RANKUP_NO_RANKS:
+                Output.get().sendError(sender, "There are no ranks in this ladder.");
                 break;
         }
 

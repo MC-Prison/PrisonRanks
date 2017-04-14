@@ -22,6 +22,7 @@ import tech.mcprison.prison.PrisonAPI;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.modules.ModuleStatus;
 import tech.mcprison.prison.output.Output;
+import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.managers.LadderManager;
 import tech.mcprison.prison.ranks.managers.PlayerManager;
@@ -140,8 +141,7 @@ public class PrisonRanks extends Module {
 
             if (!rankLadderOptional.isPresent()) {
                 Output.get().logError("Could not create the default ladder.");
-                Prison.get().getModuleManager()
-                    .setStatus(this.getName(), "&cNo default ladder found.");
+                super.getStatus().toFailed("&cNo default ladder found.");
                 return;
             }
 
@@ -149,8 +149,7 @@ public class PrisonRanks extends Module {
                 ladderManager.saveLadder(rankLadderOptional.get());
             } catch (IOException e) {
                 Output.get().logError("Could not save the default ladder.", e);
-                Prison.get().getModuleManager()
-                    .setStatus(this.getName(), "&cNo default ladder found.");
+                super.getStatus().toFailed("&cNo default ladder found.");
             }
         }
     }

@@ -49,8 +49,7 @@ public class FirstJoinHandler {
     @Subscribe public void onFirstJoin(FirstJoinEvent event) {
         RankPlayer player = event.getPlayer();
 
-        // TODO Better defaults
-        Optional<Rank> firstRank = PrisonRanks.getInstance().getRankManager().getRank(0);
+        Optional<Rank> firstRank = PrisonRanks.getInstance().getDefaultLadder().getByPosition(1);
 
         if (firstRank.isPresent()) {
             player.addRank(PrisonRanks.getInstance().getDefaultLadder(), firstRank.get());
