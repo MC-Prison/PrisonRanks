@@ -27,6 +27,7 @@ import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.data.RankPlayer;
+import tech.mcprison.prison.util.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class Commands {
      */
 
     @Command(identifier = "rankup", description = "Ranks up to the next rank.", permissions = {
-        "ranks.user", "ranks.admin"}) public void rankUp(Player sender,
+        "ranks.user"}) public void rankUp(Player sender,
         @Arg(name = "ladder", description = "The ladder to rank up on.", def = "default")
             String ladderName) {
 
@@ -113,10 +114,11 @@ public class Commands {
 
     }
 
-    @Command(identifier = "ranks", onlyPlayers = false, permissions = {"ranks.user", "ranks.admin"})
-    public void baseCommand(CommandSender sender) {
+    @Command(identifier = "ranks", onlyPlayers = false, permissions = "ranks.user")
+    public void baseCommand(CommandSender sender,
+        @Arg(name = "ladder", def = "default") String ladderName) {
         if (!sender.hasPermission("ranks.admin")) {
-            sender.dispatchCommand("ranks list");
+            sender.dispatchCommand("ranks list " + ladderName);
         } else {
             sender.dispatchCommand("ranks help");
         }
@@ -218,19 +220,52 @@ public class Commands {
     }
 
     @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
-        "ranks.user", "ranks.admin"}) public void listRanks(CommandSender sender) {
-        for (Rank rank : PrisonRanks.getInstance().getRankManager().getRanks()) {
+        "ranks.user"}) public void listRanks(CommandSender sender,
+        @Arg(name = "ladderName", def = "default") String ladderName) {
 
-            List<String> ladders = new ArrayList<>();
-            for (RankLadder ladder : PrisonRanks.getInstance().getLadderManager()
-                .getLaddersWithRank(rank.id)) {
-                ladders.add(ladder.name);
-            }
+        Optional<RankLadder> ladder =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
 
-            Output.get().sendInfo(sender, String
-                .join(" - ", String.valueOf(rank.id), rank.name, String.valueOf(rank.cost),
-                    rank.tag, "(" + String.join(", ", ladders) + ")"));
+        if (!ladder.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' doesn't exist.", ladderName);
+            return;
         }
+
+        Rank[] ranksArray = new Rank[ladder.get().ranks.size() + 1];
+        ranksArray[0] = new Rank(); // Just fill the first array value
+
+        for (RankLadder.PositionRank rank : ladder.get().ranks) {
+            ranksArray[rank.getPosition()] =
+                PrisonRanks.getInstance().getRankManager().getRank(rank.getRankId()).get();
+        }
+
+        ChatDisplay display = new ChatDisplay("Ranks in " + ladderName);
+
+        BulletedListComponent.BulletedListBuilder builder =
+            new BulletedListComponent.BulletedListBuilder();
+        for (int i = 1; i < ranksArray.length; i++) {
+            builder.add("&7#%d &8- &3%s&r &8- &7", i, ranksArray[i].tag,
+                Text.numberToDollars(ranksArray[i].cost));
+        }
+
+        display.addComponent(builder.build());
+
+        List<String> others = new ArrayList<>();
+        for (RankLadder other : PrisonRanks.getInstance().getLadderManager().getLadders()) {
+            if (!other.name.equals(ladderName) && (other.name.equals("default") || sender
+                .hasPermission("ranks.rankup." + other.name.toLowerCase()))) {
+                if (sender.hasPermission("ranks.admin")) {
+                    others.add("/ranks list " + other.name);
+                } else {
+                    others.add("/ranks " + other.name);
+                }
+            }
+        }
+
+        display.text("&8You may also try %s", Text.implodeCommaAndDot(others));
+
+        display.send(sender);
+
     }
 
     @Command(identifier = "ranks command add", description = "Adds a command to a rank.", onlyPlayers = false, permissions = {
