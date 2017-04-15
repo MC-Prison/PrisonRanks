@@ -298,7 +298,7 @@ public class Commands {
             return;
         }
 
-        ladderOptional = PrisonRanks.getInstance().getLadderManager().createLadder("ladderName");
+        ladderOptional = PrisonRanks.getInstance().getLadderManager().createLadder(ladderName);
 
         if (!ladderOptional.isPresent()) {
             Output.get().sendError(sender,
@@ -348,6 +348,94 @@ public class Commands {
         display.addComponent(list.build());
 
         display.send(sender);
+    }
+
+    @Command(identifier = "ranks ladder info", description = "Lists the ranks within a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    public void ladderInfo(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
+        Optional<RankLadder> ladder =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+
+        if (!ladder.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' doesn't exist.", ladderName);
+            return;
+        }
+
+        ChatDisplay display = new ChatDisplay(ladder.get().name);
+        display.text("&7This ladder contains the following ranks:");
+
+        BulletedListComponent.BulletedListBuilder builder =
+            new BulletedListComponent.BulletedListBuilder();
+        for (RankLadder.PositionRank rank : ladder.get().ranks) {
+            builder.add("&3#%d &8- &3%s", rank.getPosition(),
+                PrisonRanks.getInstance().getRankManager().getRank(rank.getRankId()).get().name);
+        }
+
+        display.addComponent(builder.build());
+
+        display.send(sender);
+    }
+
+    @Command(identifier = "ranks ladder addRank", description = "Adds a rank to a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    public void ladderAddRank(CommandSender sender, @Arg(name = "ladderName") String ladderName,
+        @Arg(name = "rankName") String rankName, @Arg(name = "position", def = "0", verifiers = "min[0]") int position) {
+        Optional<RankLadder> ladder =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+        if (!ladder.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' doesn't exist.", ladderName);
+            return;
+        }
+
+        Optional<Rank> rank = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if (!rank.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' doesn't exist.", rankName);
+            return;
+        }
+
+        // TODO DUPLICATE DETECTION (DON'T LET THE SAME RANK BE ADDED TWICE)
+
+        if(position > 0) {
+            ladder.get().addRank(position, rank.get());
+        } else {
+            ladder.get().addRank(rank.get());
+        }
+
+        try {
+            PrisonRanks.getInstance().getLadderManager().saveLadder(ladder.get());
+        } catch (IOException e) {
+            Output.get().sendError(sender, "An error occurred while adding a rank to your ladder. &8Check the console for details.");
+            Output.get().logError("Error while saving ladder.", e);
+            return;
+        }
+
+        Output.get().sendInfo(sender, "Added rank '%s' to ladder '%s'.", rank.get().name, ladder.get().name);
+    }
+
+    @Command(identifier = "ranks ladder removeRank", description = "Removes a rank from a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    public void ladderRemoveRank(CommandSender sender, @Arg(name = "ladderName") String ladderName, @Arg(name = "rankName") String rankName) {
+        Optional<RankLadder> ladder =
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
+        if (!ladder.isPresent()) {
+            Output.get().sendError(sender, "The ladder '%s' doesn't exist.", ladderName);
+            return;
+        }
+
+        Optional<Rank> rank = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if (!rank.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' doesn't exist.", rankName);
+            return;
+        }
+
+        ladder.get().removeRank(ladder.get().getPositionOfRank(rank.get()));
+
+        try {
+            PrisonRanks.getInstance().getLadderManager().saveLadder(ladder.get());
+        } catch (IOException e) {
+            Output.get().sendError(sender, "An error occurred while removing a rank from your ladder. &8Check the console for details.");
+            Output.get().logError("Error while saving ladder.", e);
+            return;
+        }
+
+        Output.get().sendInfo(sender, "Removed rank '%s' from ladder '%s'.", rank.get().name, ladder.get().name);
     }
 
 }

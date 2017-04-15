@@ -166,8 +166,6 @@ public class LadderManager {
      * @return true if the ladder was removed successfully, false otherwise.
      */
     public boolean removeLadder(RankLadder ladder) {
-        // Remove it from the list...
-        loadedLadders.remove(ladder);
 
         // Remove the players from the ladder
         List<RankPlayer> playersWithLadder =
@@ -177,6 +175,9 @@ public class LadderManager {
         for (RankPlayer player : playersWithLadder) {
             player.removeLadder(ladder.name);
         }
+
+        // Remove it from the list...
+        loadedLadders.remove(ladder);
 
         // ... and remove the ladder's save files.
         collection.remove("ladder_" + ladder.id);

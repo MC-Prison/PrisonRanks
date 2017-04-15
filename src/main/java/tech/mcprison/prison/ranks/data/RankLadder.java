@@ -83,9 +83,10 @@ public class RankLadder {
      * @param rank     The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
-        for(int i = 0; i >= position && i < ranks.size(); i++) {
-            ranks.get(i).setPosition(ranks.get(i).getPosition() + 1); // Move everything one up to make room
-        }
+        position = Math.min(position, ranks.size() + 1); // Make sure to cap it off at the upper limit or else problems
+        int finalPosition = position;
+        ranks.stream().filter(positionRank -> positionRank.getPosition() >= finalPosition).forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() + 1));
+
         ranks.add(new PositionRank(position, rank.id));
     }
 
