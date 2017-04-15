@@ -350,7 +350,7 @@ public class Commands {
         display.send(sender);
     }
 
-    @Command(identifier = "ranks ladder info", description = "Lists the ranks within a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    @Command(identifier = "ranks ladder rank list", description = "Lists the ranks within a ladder.", onlyPlayers = false, permissions = "ranks.admin")
     public void ladderInfo(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
         Optional<RankLadder> ladder =
             PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
@@ -375,7 +375,7 @@ public class Commands {
         display.send(sender);
     }
 
-    @Command(identifier = "ranks ladder addRank", description = "Adds a rank to a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    @Command(identifier = "ranks ladder rank add", description = "Adds a rank to a ladder.", onlyPlayers = false, permissions = "ranks.admin")
     public void ladderAddRank(CommandSender sender, @Arg(name = "ladderName") String ladderName,
         @Arg(name = "rankName") String rankName,
         @Arg(name = "position", def = "0", verifiers = "min[0]") int position) {
@@ -418,7 +418,7 @@ public class Commands {
             ladder.get().name);
     }
 
-    @Command(identifier = "ranks ladder removeRank", description = "Removes a rank from a ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    @Command(identifier = "ranks ladder rank remove", description = "Removes a rank from a ladder.", onlyPlayers = false, permissions = "ranks.admin")
     public void ladderRemoveRank(CommandSender sender, @Arg(name = "ladderName") String ladderName,
         @Arg(name = "rankName") String rankName) {
         Optional<RankLadder> ladder =
