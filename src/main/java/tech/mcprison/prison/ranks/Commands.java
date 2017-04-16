@@ -209,6 +209,11 @@ public class Commands {
 
         Rank rank = rankOptional.get();
 
+        if(PrisonRanks.getInstance().getDefaultLadder().containsRank(rank.id) && PrisonRanks.getInstance().getDefaultLadder().ranks.size() == 1) {
+            Output.get().sendError(sender, "You can't remove this rank because it's the only rank in the default ladder.");
+            return;
+        }
+
         boolean success = PrisonRanks.getInstance().getRankManager().removeRank(rank);
 
         if (success) {
