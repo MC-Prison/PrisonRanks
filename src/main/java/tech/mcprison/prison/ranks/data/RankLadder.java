@@ -159,11 +159,8 @@ public class RankLadder {
      * @return An optional containing either the rank if there is a next rank in the ladder, or empty if there isn't or if the rank does not exist anymore.
      */
     public Optional<Rank> getNext(int oldPosition) {
-        System.out.println("Old:" + oldPosition);
         for (PositionRank rankEntry : ranks) {
-            System.out.println("Rank " + rankEntry.getRankId() + " = " + rankEntry.getPosition());
             if (rankEntry.getPosition() > oldPosition) {
-                System.out.println(rankEntry.getPosition() + " - " + rankEntry.getRankId());
                 return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getRankId());
             }
         }

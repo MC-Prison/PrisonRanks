@@ -72,8 +72,6 @@ public class Commands {
 
         // RETRIEVE THE PLAYER
 
-        Output.get().logInfo("UUID: %s", sender.getUUID().toString());
-
         Optional<RankPlayer> playerOptional =
             PrisonRanks.getInstance().getPlayerManager().getPlayer(sender.getUUID());
 
