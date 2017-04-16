@@ -357,7 +357,7 @@ public class Commands {
         display.send(sender);
     }
 
-    @Command(identifier = "ranks ladder add", description = "Creates a new rank ladder.", onlyPlayers = false, permissions = {
+    @Command(identifier = "ranks ladder create", description = "Creates a new rank ladder.", onlyPlayers = false, permissions = {
         "ranks.admin"})
     public void ladderAdd(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
         Optional<RankLadder> ladderOptional =
@@ -388,7 +388,7 @@ public class Commands {
         Output.get().sendInfo(sender, "The ladder '%s' has been created.", ladderName);
     }
 
-    @Command(identifier = "ranks ladder remove", description = "Deletes a rank ladder.", onlyPlayers = false, permissions = "ranks.admin")
+    @Command(identifier = "ranks ladder delete", description = "Deletes a rank ladder.", onlyPlayers = false, permissions = "ranks.admin")
     public void ladderRemove(CommandSender sender, @Arg(name = "ladderName") String ladderName) {
         Optional<RankLadder> ladder =
             PrisonRanks.getInstance().getLadderManager().getLadder(ladderName);
