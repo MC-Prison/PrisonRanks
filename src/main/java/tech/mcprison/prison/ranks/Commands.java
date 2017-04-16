@@ -209,8 +209,10 @@ public class Commands {
 
         Rank rank = rankOptional.get();
 
-        if(PrisonRanks.getInstance().getDefaultLadder().containsRank(rank.id) && PrisonRanks.getInstance().getDefaultLadder().ranks.size() == 1) {
-            Output.get().sendError(sender, "You can't remove this rank because it's the only rank in the default ladder.");
+        if (PrisonRanks.getInstance().getDefaultLadder().containsRank(rank.id)
+            && PrisonRanks.getInstance().getDefaultLadder().ranks.size() == 1) {
+            Output.get().sendError(sender,
+                "You can't remove this rank because it's the only rank in the default ladder.");
             return;
         }
 
@@ -267,7 +269,9 @@ public class Commands {
             }
         }
 
-        display.text("&8You may also try %s", Text.implodeCommaAndDot(others));
+        if (others.size() != 0) {
+            display.text("&8You may also try %s", Text.implodeCommaAndDot(others));
+        }
 
         display.send(sender);
 
@@ -342,9 +346,10 @@ public class Commands {
         }
 
         ChatDisplay display = new ChatDisplay("Commands for " + rank.tag);
-        BulletedListComponent.BulletedListBuilder builder = new BulletedListComponent.BulletedListBuilder();
+        BulletedListComponent.BulletedListBuilder builder =
+            new BulletedListComponent.BulletedListBuilder();
 
-        for(String command : rank.rankUpCommands) {
+        for (String command : rank.rankUpCommands) {
             builder.add("&3/" + command);
         }
 
