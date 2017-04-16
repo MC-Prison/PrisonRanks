@@ -5,3 +5,10 @@ depend: [Prison]
 description: A ranks module for Prison.
 author: The MC-Prison Team
 website: https://mc-prison.tech
+permissions:
+  ranks.user:
+    description: Contains all the commands a user would use with a rank.
+    default: true
+  ranks.admin:
+    description: Contains all the commands reserved for admins.
+    default: op
