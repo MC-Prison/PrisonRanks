@@ -17,7 +17,6 @@
 
 package tech.mcprison.prison.ranks.managers;
 
-import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.PrisonAPI;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.PrisonRanks;
@@ -191,14 +190,14 @@ public class RankManager {
                 Math.max(1, ladder.getPositionOfRank(rank) - 1); // either one less, or the bottom
 
             Optional<Rank> newRank = ladder.getByPosition(next);
-            if(!newRank.isPresent()) {
+            if (!newRank.isPresent()) {
                 // TODO Do something here ... default rank!
                 return false;
             }
 
             // Move each player in this ladder to the new rank
             PrisonRanks.getInstance().getPlayerManager().getPlayers().forEach(rankPlayer -> {
-                if(rankPlayer.getRank(ladder).isPresent()) {
+                if (rankPlayer.getRank(ladder).isPresent()) {
                     rankPlayer.removeRank(rankPlayer.getRank(ladder).get());
                     rankPlayer.addRank(ladder, newRank.get());
                     try {
@@ -213,8 +212,20 @@ public class RankManager {
         }
 
         // ... remove it from each ladder it was in...
+        final boolean[] success = {true};
         PrisonRanks.getInstance().getLadderManager().getLaddersWithRank(rank.id)
-            .forEach(rankLadder -> rankLadder.removeRank(rankLadder.getPositionOfRank(rank) - 1));
+            .forEach(rankLadder -> {
+                rankLadder.removeRank(rankLadder.getPositionOfRank(rank) - 1);
+                try {
+                    PrisonRanks.getInstance().getLadderManager().saveLadder(rankLadder);
+                } catch (IOException e) {
+                    success[0] = false;
+                    Output.get().logError("Could not save ladder.", e);
+                }
+            });
+        if(!success[0]) {
+            return false;
+        }
 
         // Remove it from the list...
         loadedRanks.remove(rank);

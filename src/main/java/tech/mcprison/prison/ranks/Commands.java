@@ -197,7 +197,7 @@ public class Commands {
 
     }
 
-    @Command(identifier = "ranks remove", description = "Removes a rank, and deletes its files.", onlyPlayers = false, permissions = {
+    @Command(identifier = "ranks delete", description = "Removes a rank, and deletes its files.", onlyPlayers = false, permissions = {
         "ranks.admin"})
     public void removeRank(CommandSender sender, @Arg(name = "name") String rankName) {
         // Check to ensure the rank exists
@@ -244,7 +244,7 @@ public class Commands {
         BulletedListComponent.BulletedListBuilder builder =
             new BulletedListComponent.BulletedListBuilder();
         for (int i = 1; i < ranksArray.length; i++) {
-            builder.add("&7#%d &8- &3%s&r &8- &7", i, ranksArray[i].tag,
+            builder.add("&7#%d &8- &3%s&r &8- &7%s", i, ranksArray[i].tag,
                 Text.numberToDollars(ranksArray[i].cost));
         }
 
@@ -320,6 +320,31 @@ public class Commands {
                 .sendInfo(sender, "Removed command '%s' from the rank '%s'.", command, rank.name);
         }
 
+    }
+
+    @Command(identifier = "ranks command list", description = "Lists the commands for a rank.", onlyPlayers = false, permissions = "ranks.admin")
+    public void commandList(CommandSender sender, @Arg(name = "rank") String rankName) {
+        Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if (!rankOptional.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' does not exist.", rankName);
+            return;
+        }
+        Rank rank = rankOptional.get();
+
+        if (rank.rankUpCommands == null || rank.rankUpCommands.size() == 0) {
+            Output.get().sendInfo(sender, "The rank '%s' contains no commands.", rank.name);
+            return;
+        }
+
+        ChatDisplay display = new ChatDisplay("Commands for " + rank.tag);
+        BulletedListComponent.BulletedListBuilder builder = new BulletedListComponent.BulletedListBuilder();
+
+        for(String command : rank.rankUpCommands) {
+            builder.add("&3/" + command);
+        }
+
+        display.addComponent(builder.build());
+        display.send(sender);
     }
 
     @Command(identifier = "ranks ladder add", description = "Creates a new rank ladder.", onlyPlayers = false, permissions = {

@@ -23,6 +23,7 @@ import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,9 +84,11 @@ public class RankLadder {
      * @param rank     The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
-        position = Math.min(position, ranks.size() + 1); // Make sure to cap it off at the upper limit or else problems
+        position = Math.min(position,
+            ranks.size() + 1); // Make sure to cap it off at the upper limit or else problems
         int finalPosition = position;
-        ranks.stream().filter(positionRank -> positionRank.getPosition() >= finalPosition).forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() + 1));
+        ranks.stream().filter(positionRank -> positionRank.getPosition() >= finalPosition)
+            .forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() + 1));
 
         ranks.add(new PositionRank(position, rank.id));
     }
@@ -106,24 +109,17 @@ public class RankLadder {
      *                 ranks will be downshifted to fill the gap.
      */
     public void removeRank(int position) {
-        if (ranks.size() < position) {
-            throw new ArrayIndexOutOfBoundsException(
-                position + " is greater than array size of " + ranks.size());
+        ranks.stream().filter(positionRank -> positionRank.getPosition() >= position)
+            .forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() - 1));
+
+        Iterator<PositionRank> iter = ranks.iterator();
+        while(iter.hasNext()) {
+            PositionRank rank = iter.next();
+            if(rank.getPosition() == position) {
+                iter.remove();
+                break;
+            }
         }
-
-        ranks.remove(position);
-
-        // Move everything down one.
-
-        int i = position + 1;
-
-        while (i <= ranks.size()) {
-            int rank = ranks.get(i).getRankId();
-            ranks.remove(i);
-            ranks.add(new PositionRank(i - 1, rank));
-            i++;
-        }
-
     }
 
     /*
@@ -192,12 +188,13 @@ public class RankLadder {
 
     /**
      * Searches for and returns a rank in the ladder, depending on the position in the ladder.
+     *
      * @param position The position to search for.
      * @return An optional containing the rank if it was found, or empty if it wasn't.
      */
     public Optional<Rank> getByPosition(int position) {
-        for(PositionRank posRank : ranks) {
-            if(posRank.getPosition() == position) {
+        for (PositionRank posRank : ranks) {
+            if (posRank.getPosition() == position) {
                 return PrisonRanks.getInstance().getRankManager().getRank(posRank.getRankId());
             }
         }
