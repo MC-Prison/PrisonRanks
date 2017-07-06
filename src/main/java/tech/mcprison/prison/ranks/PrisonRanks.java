@@ -19,6 +19,7 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.PrisonAPI;
+import tech.mcprison.prison.integration.IntegrationType;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.modules.ModuleStatus;
 import tech.mcprison.prison.output.Output;
@@ -68,7 +69,7 @@ public class PrisonRanks extends Module {
     @Override public void enable() {
         instance = this;
 
-        if (PrisonAPI.getEconomy() == null) {
+        if (!PrisonAPI.getIntegrationManager().hasForType(IntegrationType.ECONOMY)) {
             getStatus().setStatus(ModuleStatus.Status.FAILED);
             getStatus().setMessage("no economy plugin");
             return;

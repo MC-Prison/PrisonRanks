@@ -19,7 +19,8 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.PrisonAPI;
-import tech.mcprison.prison.economy.Economy;
+import tech.mcprison.prison.integration.EconomyIntegration;
+import tech.mcprison.prison.integration.IntegrationType;
 import tech.mcprison.prison.internal.Player;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
@@ -76,7 +77,7 @@ public class RankUtil {
 
         if (!currentRankOptional.isPresent()) {
             Optional<Rank> lowestRank = ladder.getByPosition(1);
-            if(!lowestRank.isPresent()) {
+            if (!lowestRank.isPresent()) {
                 return new RankUpResult(RANKUP_NO_RANKS, null);
             }
             nextRank = lowestRank.get();
@@ -95,7 +96,8 @@ public class RankUtil {
         // We're going to be making a transaction here
         // We'll check if the player can afford it first, and if so, we'll make the transaction and proceed.
 
-        Economy economy = PrisonAPI.getEconomy();
+        EconomyIntegration economy = (EconomyIntegration) PrisonAPI.getIntegrationManager()
+            .getForType(IntegrationType.ECONOMY).orElseThrow(IllegalStateException::new);
         if (!economy.canAfford(prisonPlayer, nextRank.cost)) {
             return new RankUpResult(RANKUP_CANT_AFFORD, nextRank);
         }
