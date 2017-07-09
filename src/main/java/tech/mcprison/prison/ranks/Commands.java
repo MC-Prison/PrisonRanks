@@ -275,7 +275,7 @@ public class Commands {
             int i = 0;
             for (String other : others) {
                 i++;
-                if(i == others.size() && others.size() > 1) {
+                if (i == others.size() && others.size() > 1) {
                     msg.then(" &8and ");
                 }
                 msg.then("&7" + other).tooltip("&7Click to view.").command(other);
@@ -362,7 +362,9 @@ public class Commands {
             new BulletedListComponent.BulletedListBuilder();
 
         for (String command : rank.rankUpCommands) {
-            FancyMessage msg = new FancyMessage("&3/" + command).command("ranks command remove " + rankName + " " + command).tooltip("Click to remove.");
+            FancyMessage msg = new FancyMessage("&3/" + command)
+                .command("ranks command remove " + rankName + " " + command)
+                .tooltip("Click to remove.");
             builder.add(msg);
         }
 

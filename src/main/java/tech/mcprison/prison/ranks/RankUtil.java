@@ -65,12 +65,13 @@ public class RankUtil {
      */
     public static RankUpResult rankUpPlayer(RankPlayer player, String ladderName) {
 
-        // Store all of the data we need. If anything here is not present, there
-        // is a high chance of data corruption. TODO Fail gracefully here
-
-        Player prisonPlayer = PrisonAPI.getPlayer(player.uid).get();
+        Player prisonPlayer = PrisonAPI.getPlayer(player.uid).orElse(null);
         RankLadder ladder =
-            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName).get();
+            PrisonRanks.getInstance().getLadderManager().getLadder(ladderName).orElse(null);
+
+        if(prisonPlayer == null || ladder == null) {
+            return new RankUpResult(RANKUP_FAILURE, null);
+        }
 
         Optional<Rank> currentRankOptional = player.getRank(ladder);
         Rank nextRank;
