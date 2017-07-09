@@ -55,7 +55,7 @@ public class PrisonRanks extends Module {
      */
 
     public PrisonRanks(String version) {
-        super("Ranks", version, 0);
+        super("Ranks", version, 1);
     }
 
     /*

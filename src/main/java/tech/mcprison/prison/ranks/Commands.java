@@ -17,12 +17,15 @@
 
 package tech.mcprison.prison.ranks;
 
+import tech.mcprison.prison.chat.FancyMessage;
 import tech.mcprison.prison.commands.Arg;
 import tech.mcprison.prison.commands.Command;
+import tech.mcprison.prison.commands.Wildcard;
 import tech.mcprison.prison.internal.CommandSender;
 import tech.mcprison.prison.internal.Player;
 import tech.mcprison.prison.output.BulletedListComponent;
 import tech.mcprison.prison.output.ChatDisplay;
+import tech.mcprison.prison.output.FancyMessageComponent;
 import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
@@ -268,7 +271,17 @@ public class Commands {
         }
 
         if (others.size() != 0) {
-            display.text("&8You may also try %s", Text.implodeCommaAndDot(others));
+            FancyMessage msg = new FancyMessage("&8You may also try ");
+            int i = 0;
+            for (String other : others) {
+                i++;
+                if(i == others.size() && others.size() > 1) {
+                    msg.then(" &8and ");
+                }
+                msg.then("&7" + other).tooltip("&7Click to view.").command(other);
+                msg.then(i == others.size() ? "&8." : "&8,");
+            }
+            display.addComponent(new FancyMessageComponent(msg));
         }
 
         display.send(sender);
@@ -278,7 +291,7 @@ public class Commands {
     @Command(identifier = "ranks command add", description = "Adds a command to a rank.", onlyPlayers = false, permissions = {
         "ranks.admin"})
     public void commandAdd(CommandSender sender, @Arg(name = "rank") String rankName,
-        @Arg(name = "command") String command) {
+        @Arg(name = "command") @Wildcard String command) {
         if (command.startsWith("/")) {
             command = command.replaceFirst("/", "");
         }
