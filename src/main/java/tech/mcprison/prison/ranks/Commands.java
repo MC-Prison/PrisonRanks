@@ -315,7 +315,7 @@ public class Commands {
     @Command(identifier = "ranks command remove", description = "Removes a command from a rank.", onlyPlayers = false, permissions = {
         "ranks.admin"})
     public void commandRemove(CommandSender sender, @Arg(name = "rank") String rankName,
-        @Arg(name = "command") String command) {
+        @Arg(name = "command") @Wildcard String command) {
         if (command.startsWith("/")) {
             command = command.replaceFirst("/", "");
         }
@@ -363,12 +363,15 @@ public class Commands {
 
         for (String command : rank.rankUpCommands) {
             FancyMessage msg = new FancyMessage("&3/" + command)
-                .command("ranks command remove " + rankName + " " + command)
+                .command("/ranks command remove " + rankName + " " + command)
                 .tooltip("Click to remove.");
             builder.add(msg);
         }
 
         display.addComponent(builder.build());
+        display.addComponent(new FancyMessageComponent(
+            new FancyMessage("&7[&a+&7] Add").suggest("/ranks command add " + rankName + " /")
+                .tooltip("&7Add a new command.")));
         display.send(sender);
     }
 
