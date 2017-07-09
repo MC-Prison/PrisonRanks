@@ -357,11 +357,13 @@ public class Commands {
         }
 
         ChatDisplay display = new ChatDisplay("Commands for " + rank.tag);
+        display.text("&8Click a command to remove it.");
         BulletedListComponent.BulletedListBuilder builder =
             new BulletedListComponent.BulletedListBuilder();
 
         for (String command : rank.rankUpCommands) {
-            builder.add("&3/" + command);
+            FancyMessage msg = new FancyMessage("&3/" + command).command("ranks command remove " + rankName + " " + command).tooltip("Click to remove.");
+            builder.add(msg);
         }
 
         display.addComponent(builder.build());
