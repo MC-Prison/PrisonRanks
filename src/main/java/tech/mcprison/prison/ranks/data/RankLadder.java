@@ -161,7 +161,12 @@ public class RankLadder {
             ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
         Collections.sort(positions);
 
-        int nextPosition = positions.get(positions.indexOf(oldPosition) + 1);
+        int newIndex = positions.indexOf(oldPosition) + 1;
+        if(newIndex >= positions.size()) {
+            return Optional.empty();
+        }
+
+        int nextPosition = positions.get(newIndex);
         return getByPosition(nextPosition);
     }
 
@@ -170,8 +175,14 @@ public class RankLadder {
             ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
         Collections.sort(positions);
 
-        int nextPosition = positions.get(positions.indexOf(oldPosition) - 1);
-        return getByPosition(nextPosition);
+
+        int newIndex = positions.indexOf(oldPosition) -1 ;
+        if(newIndex >= positions.size()) {
+            return Optional.empty();
+        }
+
+        int previousPosition = positions.get(newIndex);
+        return getByPosition(previousPosition);
     }
 
     /**

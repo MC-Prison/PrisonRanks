@@ -11,12 +11,14 @@ import tech.mcprison.prison.output.Output;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.data.Rank;
 import tech.mcprison.prison.ranks.data.RankLadder;
+import tech.mcprison.prison.ranks.data.RankPlayer;
 import tech.mcprison.prison.util.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Faizaan A. Datoo
@@ -191,6 +193,48 @@ public class RanksCommands {
 
         display.send(sender);
 
+    }
+
+    @Command(identifier = "ranks info", description = "Information about a rank.", onlyPlayers = false, permissions = {
+        "ranks.user"})
+    public void infoCmd(CommandSender sender, @Arg(name = "rankName") String rankName) {
+        Optional<Rank> rank = PrisonRanks.getInstance().getRankManager().getRank(rankName);
+        if (!rank.isPresent()) {
+            Output.get().sendError(sender, "The rank '%s' doesn't exist.", rankName);
+            return;
+        }
+
+        List<RankLadder> ladders =
+            PrisonRanks.getInstance().getLadderManager().getLaddersWithRank(rank.get().id);
+
+        ChatDisplay display = new ChatDisplay("Rank " + rank.get().tag);
+        // (I know this is confusing) Ex. Ladder(s): default, test, and test2.
+        display.text("&3%s: &7%s", Text.pluralize("Ladder", ladders.size()),
+            Text.implodeCommaAndDot(
+                ladders.stream().map(rankLadder -> rankLadder.name).collect(Collectors.toList())));
+
+        display.text("&3Cost: &7%s", Text.numberToDollars(rank.get().cost));
+
+        if (sender.hasPermission("ranks.admin")) {
+            // This is admin-exclusive content
+
+            display.text("&8[Admin Only]");
+            display.text("&6Rank ID: &7%s", rank.get().id);
+            display.text("&6Rank Name: &7%s", rank.get().name);
+
+            List<RankPlayer> players =
+                PrisonRanks.getInstance().getPlayerManager().getPlayers().stream()
+                    .filter(rankPlayer -> rankPlayer.getRanks().values().contains(rank.get()))
+                    .collect(Collectors.toList());
+            display.text("&7There are &6%s &7with this rank.", players.size() + " players");
+
+            FancyMessage del =
+                new FancyMessage("&7[&c-&7] Delete").command("/ranks delete " + rank.get().name)
+                    .tooltip("&7Click to delete this rank.\n&cYou may not reverse this action.");
+            display.addComponent(new FancyMessageComponent(del));
+        }
+
+        display.send(sender);
     }
 
 
