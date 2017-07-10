@@ -22,10 +22,8 @@ import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A certain sequence that rank-ups will follow. There may be multiple
@@ -113,9 +111,9 @@ public class RankLadder {
             .forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() - 1));
 
         Iterator<PositionRank> iter = ranks.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             PositionRank rank = iter.next();
-            if(rank.getPosition() == position) {
+            if (rank.getPosition() == position) {
                 iter.remove();
                 break;
             }
@@ -159,28 +157,21 @@ public class RankLadder {
      * @return An optional containing either the rank if there is a next rank in the ladder, or empty if there isn't or if the rank does not exist anymore.
      */
     public Optional<Rank> getNext(int oldPosition) {
-        for (PositionRank rankEntry : ranks) {
-            if (rankEntry.getPosition() > oldPosition) {
-                return PrisonRanks.getInstance().getRankManager().getRank(rankEntry.getRankId());
-            }
-        }
+        List<Integer> positions =
+            ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
+        Collections.sort(positions);
 
-        return Optional.empty();
+        int nextPosition = positions.get(positions.indexOf(oldPosition) + 1);
+        return getByPosition(nextPosition);
     }
 
     public Optional<Rank> getPrevious(int oldPosition) {
+        List<Integer> positions =
+            ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
+        Collections.sort(positions);
 
-        for (int position = oldPosition - 1; position >= 0; position--) {
-            int finalPosition = position;
-            if (ranks.stream()
-                .anyMatch(positionRank -> positionRank.getPosition() == finalPosition)) {
-                return PrisonRanks.getInstance().getRankManager().getRank(ranks.stream()
-                    .filter(positionRank -> positionRank.getPosition() == finalPosition).findFirst()
-                    .get().getPosition());
-            }
-        }
-
-        return Optional.empty();
+        int nextPosition = positions.get(positions.indexOf(oldPosition) - 1);
+        return getByPosition(nextPosition);
     }
 
     /**
