@@ -146,24 +146,31 @@ public class RanksCommands {
             return;
         }
 
-        Rank[] ranksArray = new Rank[ladder.get().ranks.size() + 1];
-        ranksArray[0] = new Rank(); // Just fill the first array value
-
-        for (RankLadder.PositionRank rank : ladder.get().ranks) {
-            ranksArray[rank.getPosition()] =
-                PrisonRanks.getInstance().getRankManager().getRank(rank.getRankId()).get();
-        }
+        List<RankLadder.PositionRank> ranks = ladder.get().ranks;
 
         ChatDisplay display = new ChatDisplay("Ranks in " + ladderName);
+        display.text("&8Click on a rank's name to view more info.");
 
         BulletedListComponent.BulletedListBuilder builder =
             new BulletedListComponent.BulletedListBuilder();
-        for (int i = 1; i < ranksArray.length; i++) {
-            builder.add("&7#%d &8- &3%s&r &8- &7%s", i, ranksArray[i].tag,
-                Text.numberToDollars(ranksArray[i].cost));
+        for (RankLadder.PositionRank pos : ranks) {
+            Optional<Rank> rankOptional = ladder.get().getByPosition(pos.getPosition());
+            if(!rankOptional.isPresent()) {
+                continue; // Skip it
+            }
+            Rank rank = rankOptional.get();
+
+            String text = String.format("&3%s&r &8- &7%s", rank.tag,
+                Text.numberToDollars(rank.cost));
+            FancyMessage msg = new FancyMessage(text).command("/ranks info " + rank.name)
+                .tooltip("&7Click to view info.");
+            builder.add(msg);
         }
 
         display.addComponent(builder.build());
+        display.addComponent(new FancyMessageComponent(
+            new FancyMessage("&7[&a+&7] Add").suggest("/ranks create ")
+                .tooltip("&7Create a new rank.")));
 
         List<String> others = new ArrayList<>();
         for (RankLadder other : PrisonRanks.getInstance().getLadderManager().getLadders()) {

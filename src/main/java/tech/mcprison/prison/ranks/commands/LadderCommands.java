@@ -97,8 +97,14 @@ public class LadderCommands {
         BulletedListComponent.BulletedListBuilder builder =
             new BulletedListComponent.BulletedListBuilder();
         for (RankLadder.PositionRank rank : ladder.get().ranks) {
+            Optional<Rank> rankOptional =
+                PrisonRanks.getInstance().getRankManager().getRank(rank.getRankId());
+            if(!rankOptional.isPresent()) {
+                continue; // Skip it
+            }
+
             builder.add("&3#%d &8- &3%s", rank.getPosition(),
-                PrisonRanks.getInstance().getRankManager().getRank(rank.getRankId()).get().name);
+                rankOptional.get().name);
         }
 
         display.addComponent(builder.build());
