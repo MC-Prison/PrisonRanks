@@ -140,7 +140,7 @@ public class RankUtil {
      */
 
 
-    static class RankUpResult {
+    public static class RankUpResult {
 
         public int status;
         public Rank rank;

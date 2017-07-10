@@ -23,7 +23,10 @@ import tech.mcprison.prison.integration.IntegrationType;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.modules.ModuleStatus;
 import tech.mcprison.prison.output.Output;
-import tech.mcprison.prison.ranks.data.Rank;
+import tech.mcprison.prison.ranks.commands.CommandCommands;
+import tech.mcprison.prison.ranks.commands.LadderCommands;
+import tech.mcprison.prison.ranks.commands.RankUpCommand;
+import tech.mcprison.prison.ranks.commands.RanksCommands;
 import tech.mcprison.prison.ranks.data.RankLadder;
 import tech.mcprison.prison.ranks.managers.LadderManager;
 import tech.mcprison.prison.ranks.managers.PlayerManager;
@@ -114,7 +117,10 @@ public class PrisonRanks extends Module {
 
         // Load up the commands
 
-        Prison.get().getCommandHandler().registerCommands(new Commands());
+        Prison.get().getCommandHandler().registerCommands(new RankUpCommand());
+        Prison.get().getCommandHandler().registerCommands(new CommandCommands());
+        Prison.get().getCommandHandler().registerCommands(new RanksCommands());
+        Prison.get().getCommandHandler().registerCommands(new LadderCommands());
 
         // Load up all else
 
