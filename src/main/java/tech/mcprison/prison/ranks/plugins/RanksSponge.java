@@ -39,7 +39,7 @@ import tech.mcprison.prison.ranks.PrisonRanks;
     authors = {"The MC-Prison Team"} //
 ) public class RanksSponge {
 
-    static final String Version = "3.0.0-SNAPSHOT";
+    static final String Version = "1.0.0-SNAPSHOT";
 
     @Listener public void onEnable(GameStartedServerEvent event) {
         PrisonRanks ranks = new PrisonRanks(Version);
