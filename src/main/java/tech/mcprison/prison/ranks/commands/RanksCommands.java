@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class RanksCommands {
 
 
-    @Command(identifier = "ranks", onlyPlayers = false, permissions = "ranks.user")
+    @Command(identifier = "ranks", onlyPlayers = false)
     public void baseCommand(CommandSender sender,
         @Arg(name = "ladder", def = "default") String ladderName) {
         if (!sender.hasPermission("ranks.admin")) {
@@ -36,8 +36,8 @@ public class RanksCommands {
         }
     }
 
-    @Command(identifier = "ranks create", description = "Creates a new rank", onlyPlayers = false, permissions = {
-        "ranks.admin"}) public void createRank(CommandSender sender,
+    @Command(identifier = "ranks create", description = "Creates a new rank", onlyPlayers = false, permissions = "ranks.create")
+    public void createRank(CommandSender sender,
         @Arg(name = "name", description = "The name of this rank.") String name,
         @Arg(name = "cost", description = "The cost of this rank.") double cost,
         @Arg(name = "ladder", description = "The ladder to put this rank on.", def = "default")
@@ -105,8 +105,7 @@ public class RanksCommands {
 
     }
 
-    @Command(identifier = "ranks delete", description = "Removes a rank, and deletes its files.", onlyPlayers = false, permissions = {
-        "ranks.admin"})
+    @Command(identifier = "ranks delete", description = "Removes a rank, and deletes its files.", onlyPlayers = false, permissions = "ranks.delete")
     public void removeRank(CommandSender sender, @Arg(name = "name") String rankName) {
         // Check to ensure the rank exists
         Optional<Rank> rankOptional = PrisonRanks.getInstance().getRankManager().getRank(rankName);
@@ -134,8 +133,8 @@ public class RanksCommands {
         }
     }
 
-    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = {
-        "ranks.user"}) public void listRanks(CommandSender sender,
+    @Command(identifier = "ranks list", description = "Lists all the ranks on the server.", onlyPlayers = false, permissions = "ranks.list")
+    public void listRanks(CommandSender sender,
         @Arg(name = "ladderName", def = "default") String ladderName) {
 
         Optional<RankLadder> ladder =
@@ -155,13 +154,13 @@ public class RanksCommands {
             new BulletedListComponent.BulletedListBuilder();
         for (RankLadder.PositionRank pos : ranks) {
             Optional<Rank> rankOptional = ladder.get().getByPosition(pos.getPosition());
-            if(!rankOptional.isPresent()) {
+            if (!rankOptional.isPresent()) {
                 continue; // Skip it
             }
             Rank rank = rankOptional.get();
 
-            String text = String.format("&3%s&r &8- &7%s", rank.tag,
-                Text.numberToDollars(rank.cost));
+            String text =
+                String.format("&3%s&r &8- &7%s", rank.tag, Text.numberToDollars(rank.cost));
             FancyMessage msg = new FancyMessage(text).command("/ranks info " + rank.name)
                 .tooltip("&7Click to view info.");
             builder.add(msg);
@@ -202,8 +201,7 @@ public class RanksCommands {
 
     }
 
-    @Command(identifier = "ranks info", description = "Information about a rank.", onlyPlayers = false, permissions = {
-        "ranks.user"})
+    @Command(identifier = "ranks info", description = "Information about a rank.", onlyPlayers = false, permissions = "ranks.info")
     public void infoCmd(CommandSender sender, @Arg(name = "rankName") String rankName) {
         Optional<Rank> rank = PrisonRanks.getInstance().getRankManager().getRank(rankName);
         if (!rank.isPresent()) {
