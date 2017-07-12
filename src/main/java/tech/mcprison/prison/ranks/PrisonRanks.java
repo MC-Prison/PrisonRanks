@@ -19,6 +19,7 @@ package tech.mcprison.prison.ranks;
 
 import tech.mcprison.prison.Prison;
 import tech.mcprison.prison.PrisonAPI;
+import tech.mcprison.prison.convert.ConversionManager;
 import tech.mcprison.prison.integration.IntegrationType;
 import tech.mcprison.prison.modules.Module;
 import tech.mcprison.prison.modules.ModuleStatus;
@@ -126,6 +127,7 @@ public class PrisonRanks extends Module {
 
         new FirstJoinHandler();
         new ChatHandler();
+        ConversionManager.getInstance().registerConversionAgent(new RankConversionAgent());
 
     }
 
