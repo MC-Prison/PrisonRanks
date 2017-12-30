@@ -77,7 +77,7 @@ public class RankUtil {
         Rank nextRank;
 
         if (!currentRankOptional.isPresent()) {
-            Optional<Rank> lowestRank = ladder.getByPosition(1);
+            Optional<Rank> lowestRank = ladder.getByPosition(0);
             if (!lowestRank.isPresent()) {
                 return new RankUpResult(RANKUP_NO_RANKS, null);
             }

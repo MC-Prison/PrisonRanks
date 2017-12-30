@@ -18,17 +18,19 @@
 package tech.mcprison.prison.ranks.data;
 
 import com.google.gson.internal.LinkedTreeMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import tech.mcprison.prison.ranks.PrisonRanks;
 import tech.mcprison.prison.ranks.RankUtil;
 import tech.mcprison.prison.store.Document;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
- * A certain sequence that rank-ups will follow. There may be multiple
- * rank ladders on the server at a time, and one rank may be a part of
- * multiple ladders.
+ * A certain sequence that rank-ups will follow. There may be multiple rank ladders on the server at
+ * a time, and one rank may be a part of multiple ladders.
  *
  * @author Faizaan A. Datoo
  */
@@ -77,9 +79,9 @@ public class RankLadder {
     /**
      * Add a rank to this ladder.
      *
-     * @param position The place in line to put this rank, beginning at 0. The player will
-     *                 be taken through each rank by order of their positions in the ladder.
-     * @param rank     The {@link Rank} to add.
+     * @param position The place in line to put this rank, beginning at 0. The player will be taken
+     * through each rank by order of their positions in the ladder.
+     * @param rank The {@link Rank} to add.
      */
     public void addRank(int position, Rank rank) {
         position = Math.min(position,
@@ -92,7 +94,8 @@ public class RankLadder {
     }
 
     /**
-     * Add a rank to this ladder. The rank's position will be set to the next available position (i.e. at the end of the ladder).
+     * Add a rank to this ladder. The rank's position will be set to the next available position
+     * (i.e. at the end of the ladder).
      *
      * @param rank The {@link Rank} to add.
      */
@@ -104,11 +107,12 @@ public class RankLadder {
      * Removes a rank from this ladder.
      *
      * @param position The position of the rank to be removed. The positions of the rest of the
-     *                 ranks will be downshifted to fill the gap.
+     * ranks will be downshifted to fill the gap.
      */
     public void removeRank(int position) {
-        ranks.stream().filter(positionRank -> positionRank.getPosition() >= position)
-            .forEach(positionRank -> positionRank.setPosition(positionRank.getPosition() - 1));
+        ranks.stream().filter(positionRank -> positionRank.getPosition() > position).forEach(
+            positionRank -> positionRank.setPosition(positionRank.getPosition() - 1)
+        );
 
         Iterator<PositionRank> iter = ranks.iterator();
         while (iter.hasNext()) {
@@ -118,6 +122,13 @@ public class RankLadder {
                 break;
             }
         }
+    }
+
+    /**
+     * Orders the ranks in the rank list of this ladder by their position, in ascending order.
+     */
+    public void orderRanksByPosition() {
+        ranks.sort(Comparator.comparingInt(PositionRank::getPosition));
     }
 
     /*
@@ -153,16 +164,16 @@ public class RankLadder {
     /**
      * Returns the next highest rank in the ladder.
      *
-     * @param oldPosition The position of the current rank.
-     * @return An optional containing either the rank if there is a next rank in the ladder, or empty if there isn't or if the rank does not exist anymore.
+     * @param after The position of the current rank.
+     * @return An optional containing either the rank if there is a next rank in the ladder, or
+     * empty if there isn't or if the rank does not exist anymore.
      */
-    public Optional<Rank> getNext(int oldPosition) {
+    public Optional<Rank> getNext(int after) {
         List<Integer> positions =
-            ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
-        Collections.sort(positions);
+            ranks.stream().map(PositionRank::getPosition).sorted().collect(Collectors.toList());
 
-        int newIndex = positions.indexOf(oldPosition) + 1;
-        if(newIndex >= positions.size()) {
+        int newIndex = positions.indexOf(after) + 1;
+        if (newIndex >= positions.size()) {
             return Optional.empty();
         }
 
@@ -170,14 +181,19 @@ public class RankLadder {
         return getByPosition(nextPosition);
     }
 
-    public Optional<Rank> getPrevious(int oldPosition) {
+    /**
+     * Returns the next lowest rank in the ladder.
+     *
+     * @param before The position of the current rank.
+     * @return An optional containing either the rank if there is a previous rank in the ladder, or
+     * empty if there isn't or if the rank does not exist anymore.
+     */
+    public Optional<Rank> getPrevious(int before) {
         List<Integer> positions =
-            ranks.stream().map(PositionRank::getPosition).collect(Collectors.toList());
-        Collections.sort(positions);
+            ranks.stream().map(PositionRank::getPosition).sorted().collect(Collectors.toList());
 
-
-        int newIndex = positions.indexOf(oldPosition) -1 ;
-        if(newIndex >= positions.size()) {
+        int newIndex = positions.indexOf(before) - 1;
+        if (newIndex >= positions.size()) {
             return Optional.empty();
         }
 
@@ -207,22 +223,20 @@ public class RankLadder {
      * @return The open position.
      */
     private int getNextAvailablePosition() {
-        int highest = 0;
-
-        for (PositionRank rank : ranks) {
-            if (rank.getPosition() >= highest) {
-                highest = rank.getPosition();
-            }
+        if (ranks.size() == 0) {
+            return 0; // obviously, if it's empty, we want to start at the bottom
         }
 
-        return highest + 1;
+        orderRanksByPosition();
+        return ranks.get(ranks.size() - 1).getPosition() + 1;
     }
 
     /*
      * equals() and hashCode()
      */
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -232,19 +246,18 @@ public class RankLadder {
 
         RankLadder that = (RankLadder) o;
 
-        if (id != that.id) {
-            return false;
-        }
-        return name.equals(that.name);
+        return id == that.id && name.equals(that.name);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = id;
         result = 31 * result + name.hashCode();
         return result;
     }
 
     public class PositionRank {
+
         private int position;
         private int rankId;
 

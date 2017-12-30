@@ -181,13 +181,11 @@ public class RankManager {
      * @return true if the rank was removed successfully, false otherwise.
      */
     public boolean removeRank(Rank rank) {
-
-
         // ... remove it from each user, bumping them down to the next lowest rank...
         for (RankLadder ladder : PrisonRanks.getInstance().getLadderManager()
             .getLaddersWithRank(rank.id)) {
             int next =
-                Math.max(1, ladder.getPositionOfRank(rank) - 1); // either one less, or the bottom
+                Math.max(0, ladder.getPositionOfRank(rank) - 1); // either one less, or the bottom
 
             Optional<Rank> newRank = ladder.getByPosition(next);
             if (!newRank.isPresent()) {
@@ -215,7 +213,7 @@ public class RankManager {
         final boolean[] success = {true};
         PrisonRanks.getInstance().getLadderManager().getLaddersWithRank(rank.id)
             .forEach(rankLadder -> {
-                rankLadder.removeRank(rankLadder.getPositionOfRank(rank) - 1);
+                rankLadder.removeRank(rankLadder.getPositionOfRank(rank));
                 try {
                     PrisonRanks.getInstance().getLadderManager().saveLadder(rankLadder);
                 } catch (IOException e) {
