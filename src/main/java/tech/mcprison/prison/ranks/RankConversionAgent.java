@@ -90,6 +90,10 @@ public class RankConversionAgent implements ConversionAgent {
 
                 }
 
+                Output.get().logInfo("Notice: While we converted your ranks data, Prison 3 no longer ties itself to the permissions plugin."
+                    + "That means that if you want users to change permissions groups when they rank up, you'll have to use rank-up commands.");
+                Output.get().logInfo("For more information, see this article:&b https://github.com/MC-Prison/Prison/wiki/Ranks-Guidebook#rank-up-commands");
+
                 alreadyConverted.createNewFile();
                 return new ConversionResult(getName(), ConversionResult.Status.Success,
                     "Converted " + ranksJson.length + " ranks.");
